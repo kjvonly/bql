@@ -21,8 +21,15 @@ const (
 	goIdentifier                  // 6 identifier
 	goDot                         // 7 '.' field/method selector
 	goRawChar                     // 8 any other single character
-	goOpenParen                   // 9 open paren
-	goCloseParen                  // 10 open paren
+	goLPAR                        // 9 (
+	goRPAR                        // 10 )
+	goComma                       // 11 ,
+
+	goEQ // 12 =
+
+	goANDKeyword // or
+	goORKeyword  // or
+
 )
 
 var tokNames = map[lex.Token]string{
@@ -36,8 +43,12 @@ var tokNames = map[lex.Token]string{
 	goIdentifier: "ident    ",
 	goDot:        "dot      ",
 	goRawChar:    "raw char ",
-	goOpenParen:  "open paren",
-	goCloseParen: "close paren",
+	goLPAR:       "LPAR",
+	goRPAR:       "RPAR",
+	goComma:      "comma",
+	goEQ:         "EQ",
+	goANDKeyword: "and key",
+	goORKeyword:  "or key",
 }
 
 // tgInit returns the initial state function for our language.
@@ -86,10 +97,18 @@ func tgInit() lex.StateFn {
 			return nil
 		// BQL
 		case '(':
-			s.Emit(pos, goOpenParen, r)
+			s.Emit(pos, goLPAR, r)
 			return nil
 		case ')':
-			s.Emit(pos, goCloseParen, r)
+			s.Emit(pos, goRPAR, r)
+			return nil
+
+		case '=':
+			s.Emit(pos, goEQ, r)
+			return nil
+
+		case ',':
+			s.Emit(pos, goComma, r)
 			return nil
 		}
 
@@ -123,8 +142,20 @@ func identifier() lex.StateFn {
 		for r := l.Next(); unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_'; r = l.Next() {
 			b = append(b, r)
 		}
+
 		// the character returned by the last call to next is not part of the identifier. Undo it.
 		l.Backup()
+
+		if strings.ToLower(string(b)) == "and" {
+			l.Emit(pos, goANDKeyword, string(b))
+			return nil
+		}
+
+		if strings.ToLower(string(b)) == "or" {
+			l.Emit(pos, goORKeyword, string(b))
+			return nil
+		}
+
 		l.Emit(pos, goIdentifier, string(b))
 		return nil
 	}
@@ -132,7 +163,7 @@ func identifier() lex.StateFn {
 
 // TinyGo: a lexer for a minimal Go-like language.
 func Example() {
-	input := `book=(john, matthew) text=love OR text=world`
+	input := `book=(john, matthew) AND text=love OR text=world`
 
 	// initialize lex.
 	//
@@ -146,11 +177,11 @@ func Example() {
 		case nil:
 			fmt.Println(tokNames[tt])
 		case string:
-			fmt.Println(tokNames[tt], strconv.Quote(v))
+			fmt.Printf("%s\t\t\t%s\n", tokNames[tt], strconv.Quote(v))
 		case rune:
-			fmt.Println(tokNames[tt], strconv.QuoteRune(v))
+			fmt.Printf("%s\t\t\t%s\n", tokNames[tt], strconv.QuoteRune(v))
 		default:
-			fmt.Println(tokNames[tt], v)
+			fmt.Printf("%s\t\t\t%s\n", tokNames[tt], v)
 		}
 	}
 	// Output:
