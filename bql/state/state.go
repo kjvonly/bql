@@ -21,6 +21,8 @@ const (
 	goIdentifier                  // 6 identifier
 	goDot                         // 7 '.' field/method selector
 	goRawChar                     // 8 any other single character
+	goOpenParen                   // 9 open paren
+	goCloseParen                  // 10 open paren
 )
 
 var tokNames = map[lex.Token]string{
@@ -34,6 +36,8 @@ var tokNames = map[lex.Token]string{
 	goIdentifier: "ident    ",
 	goDot:        "dot      ",
 	goRawChar:    "raw char ",
+	goOpenParen:  "open paren",
+	goCloseParen: "close paren",
 }
 
 // tgInit returns the initial state function for our language.
@@ -79,6 +83,13 @@ func tgInit() lex.StateFn {
 			}
 			// for a dot followed by any other interesting char, we emit it as-is
 			s.Emit(pos, goDot, nil)
+			return nil
+		// BQL
+		case '(':
+			s.Emit(pos, goOpenParen, r)
+			return nil
+		case ')':
+			s.Emit(pos, goCloseParen, r)
 			return nil
 		}
 
