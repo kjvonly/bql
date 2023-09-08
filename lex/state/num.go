@@ -22,7 +22,7 @@ package state
 import (
 	"math/big"
 
-	"git.launchpad.net/kjvonly-bql/lex"
+	"launchpad.net/kjvonly-bql/lex"
 )
 
 const (

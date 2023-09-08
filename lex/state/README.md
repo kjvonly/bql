@@ -32,5 +32,5 @@ Package state is released under the terms of the MIT license:
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[godoc]: https://pkg.go.dev/git.launchpad.net/kjvonly-bql/lex/state?tab=doc
+[godoc]: https://pkg.go.dev/launchpad.net/kjvonly-bql/lex/state?tab=doc
 [godocb]: https://img.shields.io/badge/go.dev-reference-blue

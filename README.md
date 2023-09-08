@@ -71,9 +71,9 @@ A field in BQL is a word that represents a `KJVonly` field.
 
 An operator in BQL is one or more symbols or words, which compares the value of a field on its left with one or more values (or functions) on its right, such that only true results are retrieved by the clause. Some operators may use the `NOT` keyword.
 
-|                 | description                                                                                                                                                                                           | example        | explanation                                 |
-| :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------- |
-| Equals (=)      | The "=" operator is used to search for verses where the value of the specified field exactly matches the specified value. (Note: cannot be used with text fields; see the CONTAINS operator instead.) | book = "john"  | retrieve all the verses in the book of john |
+|            | description                                                                                                                                                                                           | example       | explanation                                 |
+| :--------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------- |
+| Equals (=) | The "=" operator is used to search for verses where the value of the specified field exactly matches the specified value. (Note: cannot be used with text fields; see the CONTAINS operator instead.) | book = "john" | retrieve all the verses in the book of john |
 
 
 #### Keywords
@@ -81,7 +81,7 @@ An operator in BQL is one or more symbols or words, which compares the value of 
 A keyword in BQL is a word or phrase that does (or is) any of the following: <br/> <ul><li>joins two or more clauses together to form a complex BQL query</li><li>alters the logic of one or more clauses</li><li>alters the logic of operators</li><li>has an explicit definition in a BQL query</li><li>performs a specific function that alters the results of a BQL query.</li></ul>
 
 
-|                 | description                                                                                                                                                                                           | example        | explanation                                 |
-| :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------- |
-|AND | Used to combine multiple clauses, allowing you to refine your search. | book = "john" and text  = "love"|
-|OR|Used to combine multiple clauses, allowing you to expand your search.| book = "john" or text = "love"|
+|      | description                                                           | example                          | explanation |
+| :--- | :-------------------------------------------------------------------- | -------------------------------- | ----------- |
+| AND  | Used to combine multiple clauses, allowing you to refine your search. | book = "john" and text  = "love" |
+| OR   | Used to combine multiple clauses, allowing you to expand your search. | book = "john" or text = "love"   |

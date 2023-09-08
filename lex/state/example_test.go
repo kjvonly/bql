@@ -7,8 +7,8 @@ import (
 	"testing"
 	"unicode"
 
-	"git.launchpad.net/kjvonly-bql/lex"
-	"git.launchpad.net/kjvonly-bql/lex/state"
+	"launchpad.net/kjvonly-bql/lex"
+	"launchpad.net/kjvonly-bql/lex/state"
 )
 
 // Token types.
