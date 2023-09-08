@@ -50,6 +50,14 @@ The [lexer](./lex) tokenize the query into several predefined states. The states
 
 ### MODELS
 
+
+|           | description                                                                                                                                                                                                                                                                                                                                                                             |
+| :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fields    | A field in BQL is a word that represents a `KJVonly` field.                                                                                                                                                                                                                                                                                                                             |
+| Operators | An operator in BQL is one or more symbols or words that compare the value of a field on its left with one or more values (or functions) on its right, such that only true results are retrieved by the clause. Some operators may use the NOT keyword.                                                                                                                                  |
+| Keywords  | A keyword in BQL is a word or phrase that does (or is) any of the following: <br/><ul><li>joins two or more clauses together to form a complex BQL query</li><li>alters the logic of one or more clauses</li><li>alters the logic of operators</li><li>has an explicit definition in a BQL query</li><li>performs a specific function that alters the results of a BQL query.</li></ul> |
+| Functions | A function in BQL appears as a word followed by parentheses, which may contain one or more explicit values or `KJVonly` fields. <br/> A function performs a calculation on either specific `KJVonly` data or the function's content in parentheses, such that only true results are retrieved by the function, and then again by the clause in which the function is used.                        |
 #### FIELDS
 
 A field in BQL is a word that represents a `KJVonly` field.
+
