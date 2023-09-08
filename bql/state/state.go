@@ -43,12 +43,12 @@ var tokNames = map[lex.Token]string{
 	goIdentifier: "ident    ",
 	goDot:        "dot      ",
 	goRawChar:    "raw char ",
-	goLPAR:       "LPAR",
-	goRPAR:       "RPAR",
+	goLPAR:       "lpar",
+	goRPAR:       "rpar",
 	goComma:      "comma",
-	goEQ:         "EQ",
-	goANDKeyword: "and key",
-	goORKeyword:  "or key",
+	goEQ:         "eq",
+	goANDKeyword: "and",
+	goORKeyword:  "or",
 }
 
 // tgInit returns the initial state function for our language.
@@ -163,7 +163,7 @@ func identifier() lex.StateFn {
 
 // TinyGo: a lexer for a minimal Go-like language.
 func Example() {
-	input := `book=(john, matthew) AND text=love OR text=world`
+	input := `book=(john, matthew, "and") AND text=love OR text=world`
 
 	// initialize lex.
 	//
