@@ -177,11 +177,11 @@ func Example() {
 		case nil:
 			fmt.Println(tokNames[tt])
 		case string:
-			fmt.Printf("%s\t\t\t%s\n", tokNames[tt], strconv.Quote(v))
+			fmt.Printf("%-12s%s\n", tokNames[tt], strconv.Quote(v))
 		case rune:
-			fmt.Printf("%s\t\t\t%s\n", tokNames[tt], strconv.QuoteRune(v))
+			fmt.Printf("%-12s%s\n", tokNames[tt], strconv.QuoteRune(v))
 		default:
-			fmt.Printf("%s\t\t\t%s\n", tokNames[tt], v)
+			fmt.Printf("%-12s%s\n", tokNames[tt], v)
 		}
 	}
 	// Output:
