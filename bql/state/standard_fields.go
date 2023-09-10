@@ -1,5 +1,7 @@
 package state
 
+import "strings"
+
 type StandardField string
 
 const (
@@ -12,6 +14,6 @@ var STANDARD_FIELDS map[string]StandardField = map[string]StandardField{
 }
 
 func IsStandardField(lookup string) bool {
-	_, ok := STANDARD_FIELDS[lookup]
+	_, ok := STANDARD_FIELDS[strings.ToLower(lookup)]
 	return ok
 }
