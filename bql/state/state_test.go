@@ -35,22 +35,4 @@ func TestDoubleLinkedListCreated(t *testing.T) {
 		}
 
 	}
-	// ident       "book"
-	// eq          '='
-	// lpar        '('
-	// ident       "john"
-	// comma       ','
-	// ident       "matthew"
-	// comma       ','
-	// string      "and"
-	// rpar        ')'
-	// and         "AND"
-	// ident       "text"
-	// eq          '='
-	// ident       "love"
-	// or          "OR"
-	// ident       "text"
-	// eq          '='
-	// ident       "world"
-
 }
