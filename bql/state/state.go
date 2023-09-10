@@ -6,6 +6,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/emirpasic/gods/lists/doublylinkedlist"
 	"launchpad.net/kjvonly-bql/lex"
 	"launchpad.net/kjvonly-bql/lex/state"
 )
@@ -167,7 +168,7 @@ type Token struct {
 }
 
 // BQL: a lexer for a Bible Query Language language.
-func BQLLexer(input string) map[string]string {
+func BQLLexer(input string) *doublylinkedlist.List {
 	// initialize lex.
 	inputFile := lex.NewFile("example", strings.NewReader(input))
 	l := lex.NewLexer(inputFile, bqlInit())
@@ -187,5 +188,5 @@ func BQLLexer(input string) map[string]string {
 		}
 	}
 
-	return nil
+	return doublylinkedlist.New()
 }
