@@ -11,7 +11,7 @@ func TestDoubleLinkedListCreated(t *testing.T) {
 	//input := `book=(john, matthew) AND text=love OR text=world`
 
 	tokens := ll.New()
-	tokens.Add(state.Token{bqlIdentifier, "book"})
+	tokens.Add(state.Token{state.BqlIdentifier, "book"})
 
 	// ident       "book"
 	// eq          '='
