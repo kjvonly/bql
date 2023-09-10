@@ -95,6 +95,7 @@ func tgInit() lex.StateFn {
 			// for a dot followed by any other interesting char, we emit it as-is
 			s.Emit(pos, bqlDot, nil)
 			return nil
+
 		// BQL
 		case '(':
 			s.Emit(pos, bqlLPAR, r)
@@ -183,19 +184,4 @@ func BQLLexer(input string) map[string]string {
 	}
 
 	return nil
-	// Output:
-	// ident     "book"
-	// raw char  '='
-	// raw char  '('
-	// ident     "john"
-	// raw char  ','
-	// ident     "matthew"
-	// raw char  ')'
-	// ident     "text"
-	// raw char  '='
-	// ident     "love"
-	// ident     "OR"
-	// ident     "text"
-	// raw char  '='
-	// ident     "world"
 }
