@@ -33,6 +33,5 @@ func TestDoubleLinkedListCreated(t *testing.T) {
 		if ev.Token != av.Token || ev.Value != av.Value {
 			t.Fatalf("linked lists do not match. expected %+v, got: %+v", ev, av)
 		}
-
 	}
 }
