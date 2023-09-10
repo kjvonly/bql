@@ -33,16 +33,16 @@ const (
 )
 
 var tokNames = map[lex.Token]string{
-	lex.Error:    "error:   ",
-	goEOF:        "EOF      ",
+	lex.Error:    "error",
+	goEOF:        "EOF",
 	goSemiColon:  "semicolon",
-	goInt:        "integer  ",
-	goFloat:      "float    ",
-	goString:     "string   ",
-	goChar:       "char     ",
-	goIdentifier: "ident    ",
-	goDot:        "dot      ",
-	goRawChar:    "raw char ",
+	goInt:        "integer",
+	goFloat:      "float",
+	goString:     "string",
+	goChar:       "char",
+	goIdentifier: "ident",
+	goDot:        "dot",
+	goRawChar:    "raw char",
 	goLPAR:       "lpar",
 	goRPAR:       "rpar",
 	goComma:      "comma",
@@ -161,12 +161,9 @@ func identifier() lex.StateFn {
 	}
 }
 
-// TinyGo: a lexer for a minimal Go-like language.
-func Example() {
-	input := `book=(john, matthew, "and") AND text=love OR text=world`
-
+// BQL: a lexer for a Bible Query Language language.
+func BQLLexer(input string) map[string]string {
 	// initialize lex.
-	//
 	inputFile := lex.NewFile("example", strings.NewReader(input))
 	l := lex.NewLexer(inputFile, tgInit())
 
@@ -184,6 +181,8 @@ func Example() {
 			fmt.Printf("%-12s%s\n", tokNames[tt], v)
 		}
 	}
+
+	return nil
 	// Output:
 	// ident     "book"
 	// raw char  '='
