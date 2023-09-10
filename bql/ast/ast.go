@@ -1,8 +1,9 @@
 package ast
 
+import "launchpad.net/kjvonly-bql/bql/state"
+
 // All node types implement the Node interface.
 type Node interface {
-	Position() int
 }
 
 // All expression nodes implement the Expr interface.
@@ -34,3 +35,7 @@ func (*ArrayType) exprNode() {}
 
 // stmt
 func (x *EqualStmt) stmtNode() {}
+
+// funcs for Idnet
+
+func (id *Ident) IsField() bool { return state.IsStandardField(id.Name) }
