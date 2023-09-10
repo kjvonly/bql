@@ -12,43 +12,43 @@ import (
 
 // Token types.
 const (
-	goEOF        lex.Token = iota // 0 EOF
-	goSemiColon                   // 1 semi-colon, EOL
-	goInt                         // 2 integer literal
-	goFloat                       // 3 float literal
-	goString                      // 4 quoted string
-	goChar                        // 5 quoted char
-	goIdentifier                  // 6 identifier
-	goDot                         // 7 '.' field/method selector
-	goRawChar                     // 8 any other single character
-	goLPAR                        // 9 (
-	goRPAR                        // 10 )
-	goComma                       // 11 ,
+	bqlEOF        lex.Token = iota // 0 EOF
+	bqlSemiColon                   // 1 semi-colon, EOL
+	bqlInt                         // 2 integer literal
+	bqlFloat                       // 3 float literal
+	bqlString                      // 4 quoted string
+	bqlChar                        // 5 quoted char
+	bqlIdentifier                  // 6 identifier
+	bqlDot                         // 7 '.' field/method selector
+	bqlRawChar                     // 8 any other single character
+	bqlLPAR                        // 9 (
+	bqlRPAR                        // 10 )
+	bqlComma                       // 11 ,
 
-	goEQ // 12 =
+	bqlEQ // 12 =
 
-	goANDKeyword // or
-	goORKeyword  // or
+	bqlANDKeyword // or
+	bqlORKeyword  // or
 
 )
 
 var tokNames = map[lex.Token]string{
-	lex.Error:    "error",
-	goEOF:        "EOF",
-	goSemiColon:  "semicolon",
-	goInt:        "integer",
-	goFloat:      "float",
-	goString:     "string",
-	goChar:       "char",
-	goIdentifier: "ident",
-	goDot:        "dot",
-	goRawChar:    "raw char",
-	goLPAR:       "lpar",
-	goRPAR:       "rpar",
-	goComma:      "comma",
-	goEQ:         "eq",
-	goANDKeyword: "and",
-	goORKeyword:  "or",
+	lex.Error:     "error",
+	bqlEOF:        "EOF",
+	bqlSemiColon:  "semicolon",
+	bqlInt:        "integer",
+	bqlFloat:      "float",
+	bqlString:     "string",
+	bqlChar:       "char",
+	bqlIdentifier: "ident",
+	bqlDot:        "dot",
+	bqlRawChar:    "raw char",
+	bqlLPAR:       "lpar",
+	bqlRPAR:       "rpar",
+	bqlComma:      "comma",
+	bqlEQ:         "eq",
+	bqlANDKeyword: "and",
+	bqlORKeyword:  "or",
 }
 
 // tgInit returns the initial state function for our language.
@@ -60,10 +60,10 @@ func tgInit() lex.StateFn {
 	// turn these into global variables.
 	// Instead, call tgInit() to get a new initial state function for each lexer
 	// running in a goroutine.
-	quotedString := state.QuotedString(goString)
-	quotedChar := state.QuotedChar(goChar)
+	quotedString := state.QuotedString(bqlString)
+	quotedChar := state.QuotedChar(bqlChar)
 	ident := identifier()
-	number := state.Number(goInt, goFloat, '.')
+	number := state.Number(bqlInt, bqlFloat, '.')
 
 	return func(s *lex.State) lex.StateFn {
 		// get current rune (read for us by the lexer upon entering the initial state)
@@ -73,11 +73,11 @@ func tgInit() lex.StateFn {
 		switch r {
 		case lex.EOF:
 			// End of file
-			s.Emit(pos, goEOF, nil)
+			s.Emit(pos, bqlEOF, nil)
 			return nil
 		case '\n', ';':
 			// transform EOLs to semi-colons
-			s.Emit(pos, goSemiColon, ';')
+			s.Emit(pos, bqlSemiColon, ';')
 			return nil
 		case '"':
 			return quotedString
@@ -93,22 +93,22 @@ func tgInit() lex.StateFn {
 				return number
 			}
 			// for a dot followed by any other interesting char, we emit it as-is
-			s.Emit(pos, goDot, nil)
+			s.Emit(pos, bqlDot, nil)
 			return nil
 		// BQL
 		case '(':
-			s.Emit(pos, goLPAR, r)
+			s.Emit(pos, bqlLPAR, r)
 			return nil
 		case ')':
-			s.Emit(pos, goRPAR, r)
+			s.Emit(pos, bqlRPAR, r)
 			return nil
 
 		case '=':
-			s.Emit(pos, goEQ, r)
+			s.Emit(pos, bqlEQ, r)
 			return nil
 
 		case ',':
-			s.Emit(pos, goComma, r)
+			s.Emit(pos, bqlComma, r)
 			return nil
 		}
 
@@ -124,7 +124,7 @@ func tgInit() lex.StateFn {
 			// r starts an identifier
 			return ident
 		default:
-			s.Emit(pos, goRawChar, r)
+			s.Emit(pos, bqlRawChar, r)
 			return nil
 		}
 	}
@@ -147,16 +147,16 @@ func identifier() lex.StateFn {
 		l.Backup()
 
 		if strings.ToLower(string(b)) == "and" {
-			l.Emit(pos, goANDKeyword, string(b))
+			l.Emit(pos, bqlANDKeyword, string(b))
 			return nil
 		}
 
 		if strings.ToLower(string(b)) == "or" {
-			l.Emit(pos, goORKeyword, string(b))
+			l.Emit(pos, bqlORKeyword, string(b))
 			return nil
 		}
 
-		l.Emit(pos, goIdentifier, string(b))
+		l.Emit(pos, bqlIdentifier, string(b))
 		return nil
 	}
 }
@@ -168,7 +168,7 @@ func BQLLexer(input string) map[string]string {
 	l := lex.NewLexer(inputFile, tgInit())
 
 	// loop over each token
-	for tt, _, v := l.Lex(); tt != goEOF; tt, _, v = l.Lex() {
+	for tt, _, v := l.Lex(); tt != bqlEOF; tt, _, v = l.Lex() {
 		// print the token type and value.
 		switch v := v.(type) {
 		case nil:
