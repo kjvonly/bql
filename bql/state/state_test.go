@@ -8,10 +8,15 @@ import (
 )
 
 func TestDoubleLinkedListCreated(t *testing.T) {
-	//input := `book=(john, matthew) AND text=love OR text=world`
-	input := `book`
+	input := `book = john and text = love`
 	expectedLl := ll.New()
 	expectedLl.Add(state.Token{state.BqlIdentifier, "book"})
+	expectedLl.Add(state.Token{state.BqlEQ, "="})
+	expectedLl.Add(state.Token{state.BqlIdentifier, "john"})
+	expectedLl.Add(state.Token{state.BqlANDKeyword, "and"})
+	expectedLl.Add(state.Token{state.BqlIdentifier, "text"})
+	expectedLl.Add(state.Token{state.BqlEQ, "="})
+	expectedLl.Add(state.Token{state.BqlIdentifier, "love"})
 
 	actualLl := state.BQLLexer(input)
 	expectedIter := expectedLl.Iterator()
@@ -25,9 +30,10 @@ func TestDoubleLinkedListCreated(t *testing.T) {
 		}
 		var av state.Token = actualValue.(state.Token)
 
-		if !found || ev.Token != av.Token {
+		if ev.Token != av.Token || ev.Value != av.Value {
 			t.Fatalf("linked lists do not match. expected %+v, got: %+v", ev, av)
 		}
+
 	}
 	// ident       "book"
 	// eq          '='

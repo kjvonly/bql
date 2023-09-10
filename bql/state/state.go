@@ -183,10 +183,10 @@ func BQLLexer(input string) *doublylinkedlist.List {
 			ll.Add(Token{tt, ""})
 			fmt.Println(tokNames[tt])
 		case string:
-			ll.Add(Token{tt, strconv.Quote(v)})
+			ll.Add(Token{tt, v})
 			fmt.Printf("%-12s%s\n", tokNames[tt], strconv.Quote(v))
 		case rune:
-			ll.Add(Token{tt, strconv.QuoteRune(v)})
+			ll.Add(Token{tt, string(v)})
 			fmt.Printf("%-12s%s\n", tokNames[tt], strconv.QuoteRune(v))
 		default:
 			ll.Add(Token{tt, v.(string)})
