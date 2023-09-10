@@ -27,9 +27,8 @@ const (
 
 	bqlEQ // 12 =
 
-	bqlANDKeyword // or
-	bqlORKeyword  // or
-
+	bqlANDKeyword // 13 and
+	bqlORKeyword  // 14 or
 )
 
 var tokNames = map[lex.Token]string{
@@ -51,10 +50,10 @@ var tokNames = map[lex.Token]string{
 	bqlORKeyword:  "or",
 }
 
-// tgInit returns the initial state function for our language.
+// bqlInit returns the initial state function for our language.
 // We implement it as a closure so that we can initialize state functions from
 // the state package and take advantage of buffer pre-allocation.
-func tgInit() lex.StateFn {
+func bqlInit() lex.StateFn {
 	// Note that because of the buffer pre-allocation mentioned above, reusing
 	// any of these variables in multiple goroutines is not safe. i.e. do not
 	// turn these into global variables.
@@ -162,11 +161,16 @@ func identifier() lex.StateFn {
 	}
 }
 
+type Token struct {
+	Token lex.Token
+	Value string
+}
+
 // BQL: a lexer for a Bible Query Language language.
 func BQLLexer(input string) map[string]string {
 	// initialize lex.
 	inputFile := lex.NewFile("example", strings.NewReader(input))
-	l := lex.NewLexer(inputFile, tgInit())
+	l := lex.NewLexer(inputFile, bqlInit())
 
 	// loop over each token
 	for tt, _, v := l.Lex(); tt != bqlEOF; tt, _, v = l.Lex() {
