@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/emirpasic/gods/lists/doublylinkedlist"
+	"launchpad.net/kjvonly-bql/bql/parser"
 	"launchpad.net/kjvonly-bql/bql/state"
 )
 
@@ -55,14 +56,14 @@ func (a *Ast) ParseQuery() error {
 	return nil
 }
 
-func (a *Ast) ParseOperator(tt state.Token) (bool, error) {
+func (a *Ast) ParseOperator(tt parser.Token) (bool, error) {
 	if tt.Token == state.BqlEQ {
 		return a.ParseEqStmt(tt)
 	}
 	return false, nil
 }
 
-func (a *Ast) ParseIdentifier(tt state.Token) (bool, error) {
+func (a *Ast) ParseIdentifier(tt parser.Token) (bool, error) {
 	if state.IsStandardField(tt.Value) {
 		if len(a.Elements) != 0 {
 			return false, fmt.Errorf("Query Error: Standard Field not first element")
@@ -77,12 +78,12 @@ func (a *Ast) ParseIdentifier(tt state.Token) (bool, error) {
 	return true, nil
 }
 
-func (a *Ast) ParseAndKeyword(tt state.Token) (bool, error) {
+func (a *Ast) ParseAndKeyword(tt parser.Token) (bool, error) {
 
 	return true, nil
 }
 
-func (a *Ast) ParseEqStmt(tt state.Token) (bool, error) {
+func (a *Ast) ParseEqStmt(tt parser.Token) (bool, error) {
 	prevTokenIndex := a.currentPos - 1
 
 	t, err := a.GetToken(prevTokenIndex)
@@ -99,12 +100,12 @@ func (a *Ast) ParseEqStmt(tt state.Token) (bool, error) {
 	return true, nil
 }
 
-func (a *Ast) GetToken(index int) (state.Token, error) {
+func (a *Ast) GetToken(index int) (parser.Token, error) {
 	v, ok := a.Tokens.Get(index)
 	if !ok {
-		return state.Token{}, fmt.Errorf("INVALID INDEX AT '%d'", index)
+		return parser.Token{}, fmt.Errorf("INVALID INDEX AT '%d'", index)
 	}
-	return v.(state.Token), nil
+	return v.(parser.Token), nil
 
 }
 

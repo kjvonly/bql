@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"launchpad.net/kjvonly-bql/bql/state"
 	"launchpad.net/kjvonly-bql/lex"
 )
 
@@ -10,38 +9,23 @@ type Token struct {
 	Value string
 }
 
-type ElementType string
+type Marker struct{}
 
-const (
-	IDENTIFIER ElementType = "identifier"
-)
-
-type Element struct {
-	Value interface{}
-	Type  ElementType
+type Build interface {
+	Mark() Marker
 }
 
-func (e *Element) Add(Element) {
+type Builder struct {
+	Marks []Marker
+}
 
+// Mark adds a placeholder for new
+func (b *Builder) Mark() Marker {
+	m := Marker{}
+	b.Marks = append(b.Marks, m)
+	return m
 }
 
 type Parser struct {
-	Lexer   *lex.Lexer
-	Element Element
-}
-
-func (p *Parser) Parse(input string) {
-
-	p.Lexer = state.BQLLexer(input)
-	e := Element
-
-}
-
-func (p *Parser) ParseQuery() {
-
-}
-
-func (p *Parser) advanceIfMatches() {
-	t, _, v := p.Lexer.Lex()
-	p.Element{Token{t, v}}
+	Lexer *lex.Lexer
 }

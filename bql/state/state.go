@@ -159,11 +159,6 @@ func identifier() lex.StateFn {
 	}
 }
 
-type Token struct {
-	Token lex.Token
-	Value string
-}
-
 // BQL: a lexer for a Bible Query Language language.
 func BQLLexer(input string) *lex.Lexer {
 	inputFile := lex.NewFile("example", strings.NewReader(input))
