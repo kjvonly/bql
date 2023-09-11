@@ -34,11 +34,17 @@ func (a *Ast) ParseQuery() error {
 			if err != nil {
 				return err
 			}
-
 		}
 
 		if tt.Token == state.BqlIdentifier {
 			_, err := a.ParseIdentifier(tt)
+			if err != nil {
+				return err
+			}
+		}
+
+		if tt.Token == state.BqlANDKeyword {
+			_, err := a.ParseAndKeyword(tt)
 			if err != nil {
 				return err
 			}
@@ -61,13 +67,18 @@ func (a *Ast) ParseIdentifier(tt state.Token) (bool, error) {
 		if len(a.Elements) != 0 {
 			return false, fmt.Errorf("Query Error: Standard Field not first element")
 		}
-		id := Ident{Name: tt.Value}
+		id := Field{Name: tt.Value}
 		a.Elements = append(a.Elements, id)
 		return true, nil
 	}
 
 	id := Ident{Name: tt.Value}
 	a.Elements = append(a.Elements, id)
+	return true, nil
+}
+
+func (a *Ast) ParseAndKeyword(tt state.Token) (bool, error) {
+
 	return true, nil
 }
 
@@ -114,6 +125,11 @@ type Stmt interface {
 	stmtNode()
 }
 
+type Field struct {
+	Node
+	Name string
+}
+
 type Ident struct {
 	Node
 	Name string
@@ -152,5 +168,4 @@ func (e *EqualStmt) Print() {
 }
 
 // funcs for Idnet
-func (id *Ident) IsField() bool { return state.IsStandardField(id.Name) }
-func (id *Ident) Print()        { fmt.Printf("leaf: %s", id.Name) }
+func (id *Ident) Print() { fmt.Printf("leaf: %s", id.Name) }

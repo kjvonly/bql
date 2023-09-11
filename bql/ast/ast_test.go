@@ -57,7 +57,7 @@ func TestAnd(t *testing.T) {
 		t.Fatalf("did not expect query error: error %s", err)
 	}
 
-	if len(a.Elements) != 3 {
-		t.Fatalf("expected 3 element but had %d", len(a.Elements))
+	if len(a.Elements) != 4 {
+		t.Fatalf("expected 4 element but had %d", len(a.Elements))
 	}
 }
