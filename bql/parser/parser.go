@@ -29,3 +29,7 @@ func (b *Builder) Mark() Marker {
 type Parser struct {
 	Lexer *lex.Lexer
 }
+
+func (p *Parser) AdvanceIfMatches(b Builder, m map[ElementType]bool) bool {
+	return false
+}
