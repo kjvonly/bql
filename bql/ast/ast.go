@@ -9,26 +9,31 @@ import (
 
 type Ast struct {
 	currentPos int
-	ll         *doublylinkedlist.List
+	Tokens     *doublylinkedlist.List
 	Elements   []interface{}
 }
 
 func (a *Ast) Generate(ll *doublylinkedlist.List) *Query {
-	a.ll = ll
+	a.Tokens = ll
 	q := Query{Expr: []Expr{}}
 	a.ParseQuery()
 	return &q
 }
 
 func (a *Ast) ParseQuery() error {
-	currentPos := 0
-	v, _ := a.ll.Get(currentPos)
-	tt := v.(state.Token)
+	a.currentPos = 0
 
-	_, so := state.SIMPLE_OPERATORS[tt.Token]
-	if so {
-		_, err := a.ParseOperator(tt)
-		return err
+	for a.currentPos != a.Tokens.Size() {
+		tt, err := a.GetToken(a.currentPos)
+		if err != nil {
+			return err
+		}
+		_, so := state.SIMPLE_OPERATORS[tt.Token]
+		if so {
+			_, err := a.ParseOperator(tt)
+			return err
+		}
+		a.currentPos = a.currentPos + 1
 	}
 	return nil
 }
@@ -48,7 +53,7 @@ func (a *Ast) ParseEqStmt(tt state.Token) (bool, error) {
 		return false, err
 	}
 
-	if state.IsStandardField(t.Value) {
+	if !state.IsStandardField(t.Value) {
 		return false, fmt.Errorf("QUERY ERROR: = OPERATOR PRECEDED BY UNKNOWN FIELD %s", t.Value)
 	}
 
@@ -58,7 +63,7 @@ func (a *Ast) ParseEqStmt(tt state.Token) (bool, error) {
 }
 
 func (a *Ast) GetToken(index int) (state.Token, error) {
-	v, ok := a.ll.Get(index)
+	v, ok := a.Tokens.Get(index)
 	if !ok {
 		return state.Token{}, fmt.Errorf("INVALID INDEX AT '%d'", index)
 	}

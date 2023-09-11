@@ -34,10 +34,15 @@ func TestParseQuery(t *testing.T) {
 		t.Fatalf("expected query error")
 	}
 
-	query = "book ="
-	tokens = state.BQLLexer(query)
+}
 
-	err = a.Generate(tokens)
+func TestInvalidEqualStmt(t *testing.T) {
+	query := "book ="
+
+	a := ast.Ast{}
+	a.Tokens = state.BQLLexer(query)
+	err := a.ParseQuery()
+
 	if err != nil {
 		t.Fatalf("did not expect query error: error %s", err)
 	}
