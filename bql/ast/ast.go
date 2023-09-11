@@ -31,8 +31,19 @@ func (a *Ast) ParseQuery() error {
 		_, so := state.SIMPLE_OPERATORS[tt.Token]
 		if so {
 			_, err := a.ParseOperator(tt)
-			return err
+			if err != nil {
+				return err
+			}
+
 		}
+
+		if tt.Token == state.BqlIdentifier {
+			_, err := a.ParseIdentifier(tt)
+			if err != nil {
+				return err
+			}
+		}
+
 		a.currentPos = a.currentPos + 1
 	}
 	return nil
@@ -43,6 +54,21 @@ func (a *Ast) ParseOperator(tt state.Token) (bool, error) {
 		return a.ParseEqStmt(tt)
 	}
 	return false, nil
+}
+
+func (a *Ast) ParseIdentifier(tt state.Token) (bool, error) {
+	if state.IsStandardField(tt.Value) {
+		if len(a.Elements) != 0 {
+			return false, fmt.Errorf("Query Error: Standard Field not first element")
+		}
+		id := Ident{Name: tt.Value}
+		a.Elements = append(a.Elements, id)
+		return true, nil
+	}
+
+	id := Ident{Name: tt.Value}
+	a.Elements = append(a.Elements, id)
+	return true, nil
 }
 
 func (a *Ast) ParseEqStmt(tt state.Token) (bool, error) {
