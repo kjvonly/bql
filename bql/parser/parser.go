@@ -13,6 +13,7 @@ type Marker struct{}
 
 type Build interface {
 	Mark() Marker
+	GetToken() ElementType
 }
 
 type Builder struct {
@@ -24,6 +25,10 @@ func (b *Builder) Mark() Marker {
 	m := Marker{}
 	b.Marks = append(b.Marks, m)
 	return m
+}
+
+func (b *Builder) GetToken() ElementType {
+	return STRING_LITERAL
 }
 
 type Parser struct {
