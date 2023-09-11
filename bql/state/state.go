@@ -1,8 +1,6 @@
 package state
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 	"unicode"
 
@@ -181,16 +179,16 @@ func BQLLexer(input string) *doublylinkedlist.List {
 		switch v := v.(type) {
 		case nil:
 			ll.Add(Token{tt, ""})
-			fmt.Println(tokNames[tt])
+			//fmt.Println(tokNames[tt])
 		case string:
 			ll.Add(Token{tt, v})
-			fmt.Printf("%-12s%s\n", tokNames[tt], strconv.Quote(v))
+			//fmt.Printf("%-12s%s\n", tokNames[tt], strconv.Quote(v))
 		case rune:
 			ll.Add(Token{tt, string(v)})
-			fmt.Printf("%-12s%s\n", tokNames[tt], strconv.QuoteRune(v))
+			//fmt.Printf("%-12s%s\n", tokNames[tt], strconv.QuoteRune(v))
 		default:
 			ll.Add(Token{tt, v.(string)})
-			fmt.Printf("%-12s%s\n", tokNames[tt], v)
+			//fmt.Printf("%-12s%s\n", tokNames[tt], v)
 		}
 	}
 

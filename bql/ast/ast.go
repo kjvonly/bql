@@ -10,6 +10,7 @@ import (
 type Ast struct {
 	currentPos int
 	ll         *doublylinkedlist.List
+	Elements   []interface{}
 }
 
 func (a *Ast) Generate(ll *doublylinkedlist.List) *Query {
@@ -19,35 +20,41 @@ func (a *Ast) Generate(ll *doublylinkedlist.List) *Query {
 	return &q
 }
 
-func (a *Ast) ParseQuery() {
+func (a *Ast) ParseQuery() error {
 	currentPos := 0
 	v, _ := a.ll.Get(currentPos)
 	tt := v.(state.Token)
 
 	_, so := state.SIMPLE_OPERATORS[tt.Token]
 	if so {
-		a.ParseOperator(tt)
+		_, err := a.ParseOperator(tt)
+		return err
 	}
+	return nil
 }
 
 func (a *Ast) ParseOperator(tt state.Token) (bool, error) {
 	if tt.Token == state.BqlEQ {
-		prevTokenIndex := a.currentPos - 1
+		return a.ParseEqStmt(tt)
+	}
+	return false, nil
+}
 
-		t, err := a.GetToken(prevTokenIndex)
-		if err != nil {
-			return false, err
-		}
+func (a *Ast) ParseEqStmt(tt state.Token) (bool, error) {
+	prevTokenIndex := a.currentPos - 1
 
-		if state.IsStandardField(t.Value) {
-			return false, fmt.Errorf("QUERY ERROR: = OPERATOR PRECEDED BY UNKNOWN FIELD %s", t.Value)
-		}
-
-		// link the IDENT FIELD with the EQ STMT
-		return true, nil
+	t, err := a.GetToken(prevTokenIndex)
+	if err != nil {
+		return false, err
 	}
 
-	return false, nil
+	if state.IsStandardField(t.Value) {
+		return false, fmt.Errorf("QUERY ERROR: = OPERATOR PRECEDED BY UNKNOWN FIELD %s", t.Value)
+	}
+
+	// link the IDENT FIELD with the EQ STMT
+	a.Elements = append(a.Elements, EqualStmt{})
+	return true, nil
 }
 
 func (a *Ast) GetToken(index int) (state.Token, error) {

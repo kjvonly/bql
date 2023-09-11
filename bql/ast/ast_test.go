@@ -25,9 +25,25 @@ func TestSimpleExpression(t *testing.T) {
 }
 
 func TestParseQuery(t *testing.T) {
-	query := "book = jonn"
-	_ = state.BQLLexer(query)
+	query := "="
+	tokens := state.BQLLexer(query)
+	a := ast.Ast{}
+	err := a.Generate(tokens)
 
-	//ast.ParseQuery(tokens)
+	if err == nil {
+		t.Fatalf("expected query error")
+	}
+
+	query = "book ="
+	tokens = state.BQLLexer(query)
+
+	err = a.Generate(tokens)
+	if err != nil {
+		t.Fatalf("did not expect query error: error %s", err)
+	}
+
+	if len(a.Elements) != 1 {
+		t.Fatalf("expected 1 element but had %d", len(a.Elements))
+	}
 
 }
