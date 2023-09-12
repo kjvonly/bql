@@ -4,8 +4,8 @@ type ElementType string
 
 // TOKEN SETS
 
-// TODO switch Idnetifier name to STRING_LITERAL
 const STRING_LITERAL ElementType = "STRING_LITERAL"
+const IDENTIFIER ElementType = "IDENTIFIER"
 
 const EQ ElementType = "EQ"
 

@@ -19,7 +19,10 @@ func TestBuilderMark(t *testing.T) {
 }
 
 func TestBuilderGetToken(t *testing.T) {
-	b := parser.Builder{}
+	l := state.BQLLexer("book = john")
+	b := parser.NewBuilder(l)
+
+	b.AdvanceLexer()
 	_ = b.Mark()
 
 	if len(b.Marks) != 1 {
@@ -28,8 +31,8 @@ func TestBuilderGetToken(t *testing.T) {
 
 	token := b.GetToken()
 
-	if token != state.STRING_LITERAL {
-		t.Fatalf("expected %s but got %s", state.STRING_LITERAL, token)
+	if token != state.IDENTIFIER {
+		t.Fatalf("expected %s but got %s", state.IDENTIFIER, token)
 	}
 }
 
@@ -39,8 +42,8 @@ func TestBuilderAdvanceLexer(t *testing.T) {
 
 	b.AdvanceLexer()
 
-	if b.CurrentToken.Type != state.STRING_LITERAL {
-		t.Fatalf("expected current type to be STRING_LITERAL")
+	if b.CurrentToken.Type != state.IDENTIFIER {
+		t.Fatalf("expected current type to be %s", state.IDENTIFIER)
 	}
 }
 

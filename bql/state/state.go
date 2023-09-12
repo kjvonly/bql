@@ -37,7 +37,7 @@ var TokenTypes = map[lex.Token]ElementType{
 	BqlFloat:      "float",
 	BqlString:     "STRING_LITERAL",
 	BqlChar:       "char",
-	BqlIdentifier: "ident",
+	BqlIdentifier: "IDENTIFIER",
 	BqlDot:        "dot",
 	BqlRawChar:    "raw char",
 	BqlLPAR:       "LPAR",

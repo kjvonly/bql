@@ -36,7 +36,7 @@ func (b *Builder) Mark() Marker {
 }
 
 func (b *Builder) GetToken() state.ElementType {
-	return state.STRING_LITERAL
+	return b.CurrentToken.Type
 }
 
 func (b *Builder) AdvanceLexer() {
