@@ -75,6 +75,18 @@ func TestParseInvalidFieldName(t *testing.T) {
 	}
 }
 
+func TestParseValidFieldName(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("book"))
+	b.AdvanceLexer()
+	success := p.ParseFieldName(b)
+	if b.Marks[0].Dropped {
+		t.Fatalf("expected mark not to have been dropped")
+	}
+	if !success {
+		t.Fatalf("expected parseFieldName to have succeeded")
+	}
+}
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}
 
