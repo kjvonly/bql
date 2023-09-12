@@ -14,7 +14,7 @@ type Marker struct{}
 
 type Build interface {
 	Mark() Marker
-	GetToken() state.ElementType
+	GetTokenType() state.ElementType
 	AdvanceLexer()
 }
 
@@ -35,7 +35,7 @@ func (b *Builder) Mark() Marker {
 	return m
 }
 
-func (b *Builder) GetToken() state.ElementType {
+func (b *Builder) GetTokenType() state.ElementType {
 	return b.CurrentToken.Type
 }
 
@@ -55,5 +55,10 @@ type Parser struct {
 }
 
 func (p *Parser) AdvanceIfMatches(b Builder, m map[state.ElementType]bool) bool {
+	_, ok := m[b.GetTokenType()]
+	if ok {
+		b.AdvanceLexer()
+		return true
+	}
 	return false
 }

@@ -11,6 +11,7 @@ const EQ ElementType = "EQ"
 
 var VALID_FIELD_NAMES = map[ElementType]bool{
 	STRING_LITERAL: true,
+	IDENTIFIER:     true,
 }
 
 var SIMPLE_OPERATORS = map[ElementType]bool{

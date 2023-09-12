@@ -18,21 +18,26 @@ func TestBuilderMark(t *testing.T) {
 	}
 }
 
-func TestBuilderGetToken(t *testing.T) {
+func TestBuilderGetTokenType(t *testing.T) {
 	l := state.BQLLexer("book = john")
 	b := parser.NewBuilder(l)
-
 	b.AdvanceLexer()
-	_ = b.Mark()
 
-	if len(b.Marks) != 1 {
-		t.Fatalf("Should have 1 mark but has %d marks", len(b.Marks))
-	}
-
-	token := b.GetToken()
+	token := b.GetTokenType()
 
 	if token != state.IDENTIFIER {
 		t.Fatalf("expected %s but got %s", state.IDENTIFIER, token)
+	}
+}
+
+func TestBuilderGetTokenTypeEmptyString(t *testing.T) {
+	l := state.BQLLexer("book")
+	b := parser.NewBuilder(l)
+
+	token := b.GetTokenType()
+
+	if token != "" {
+		t.Fatalf("expected empty string but got %s", token)
 	}
 }
 
@@ -61,13 +66,12 @@ func TestParseFieldName(t *testing.T) {
 
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}
-
 	b := parser.Builder{}
 
-	input := "book = john"
+	input := "book"
 	b.Lexer = state.BQLLexer(input)
 
-	b.Mark()
+	b.AdvanceLexer()
 
 	matches := p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES)
 
