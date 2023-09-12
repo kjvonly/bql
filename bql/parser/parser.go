@@ -1,23 +1,31 @@
 package parser
 
 import (
+	"launchpad.net/kjvonly-bql/bql/state"
 	"launchpad.net/kjvonly-bql/lex"
 )
 
 type Token struct {
-	Token lex.Token
-	Value string
+	Type  state.ElementType
+	Value interface{}
 }
 
 type Marker struct{}
 
 type Build interface {
 	Mark() Marker
-	GetToken() ElementType
+	GetToken() state.ElementType
+	AdvanceLexer()
 }
 
 type Builder struct {
-	Marks []Marker
+	Marks        []Marker
+	Lexer        *lex.Lexer
+	CurrentToken Token
+}
+
+func NewBuilder(lex *lex.Lexer) *Builder {
+	return &Builder{Lexer: lex}
 }
 
 // Mark adds a placeholder for new
@@ -27,14 +35,25 @@ func (b *Builder) Mark() Marker {
 	return m
 }
 
-func (b *Builder) GetToken() ElementType {
-	return STRING_LITERAL
+func (b *Builder) GetToken() state.ElementType {
+	return state.STRING_LITERAL
+}
+
+func (b *Builder) AdvanceLexer() {
+	t, _, v := b.Lexer.Lex()
+
+	ty, ok := state.TokenTypes[t]
+	if !ok {
+		panic("wrong lek.Token")
+	}
+
+	b.CurrentToken = Token{ty, v}
+
 }
 
 type Parser struct {
-	Lexer *lex.Lexer
 }
 
-func (p *Parser) AdvanceIfMatches(b Builder, m map[ElementType]bool) bool {
+func (p *Parser) AdvanceIfMatches(b Builder, m map[state.ElementType]bool) bool {
 	return false
 }

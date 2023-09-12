@@ -29,19 +29,19 @@ const (
 	BqlORKeyword  // 14 or
 )
 
-var tokNames = map[lex.Token]string{
+var TokenTypes = map[lex.Token]ElementType{
 	lex.Error:     "error",
 	BqlEOF:        "EOF",
 	BqlSemiColon:  "semicolon",
 	BqlInt:        "integer",
 	BqlFloat:      "float",
-	BqlString:     "string",
+	BqlString:     "STRING_LITERAL",
 	BqlChar:       "char",
 	BqlIdentifier: "ident",
 	BqlDot:        "dot",
 	BqlRawChar:    "raw char",
-	BqlLPAR:       "lpar",
-	BqlRPAR:       "rpar",
+	BqlLPAR:       "LPAR",
+	BqlRPAR:       "RPAR",
 	BqlComma:      "comma",
 	BqlEQ:         "eq",
 	BqlANDKeyword: "and",

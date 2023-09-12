@@ -4,8 +4,11 @@ import (
 	"testing"
 
 	"launchpad.net/kjvonly-bql/bql/parser"
+	"launchpad.net/kjvonly-bql/bql/state"
 )
 
+// ///////////////////////////////////
+// /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
 	b := parser.Builder{}
 	_ = b.Mark()
@@ -25,11 +28,24 @@ func TestBuilderGetToken(t *testing.T) {
 
 	token := b.GetToken()
 
-	if token != parser.STRING_LITERAL {
-		t.Fatalf("expected %s but got %s", parser.STRING_LITERAL, token)
+	if token != state.STRING_LITERAL {
+		t.Fatalf("expected %s but got %s", state.STRING_LITERAL, token)
 	}
 }
 
+func TestBuilderAdvanceLexer(t *testing.T) {
+	l := state.BQLLexer("book = john")
+	b := parser.NewBuilder(l)
+
+	b.AdvanceLexer()
+
+	if b.CurrentToken.Type != state.STRING_LITERAL {
+		t.Fatalf("expected current type to be STRING_LITERAL")
+	}
+}
+
+// ////////////////////////////////////
+// //////////// PARSER ///////////////
 func TestParseFieldName(t *testing.T) {
 
 	b := parser.Builder{}
@@ -42,11 +58,15 @@ func TestParseFieldName(t *testing.T) {
 
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}
+
 	b := parser.Builder{}
+
+	input := "book = john"
+	b.Lexer = state.BQLLexer(input)
 
 	b.Mark()
 
-	matches := p.AdvanceIfMatches(b, parser.VALID_FIELD_NAMES)
+	matches := p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES)
 
 	if !matches {
 		t.Fatalf("should match")
