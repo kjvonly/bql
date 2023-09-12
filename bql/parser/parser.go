@@ -10,16 +10,19 @@ type Token struct {
 	Value interface{}
 }
 
-type Marker struct{}
+type Marker struct {
+	Dropped bool
+}
+
+func (m *Marker) Drop() {
+	m.Dropped = true
+}
 
 type Build interface {
-	Mark() Marker
-	GetTokenType() state.ElementType
-	AdvanceLexer()
 }
 
 type Builder struct {
-	Marks        []Marker
+	Marks        []*Marker
 	Lexer        *lex.Lexer
 	CurrentToken Token
 }
@@ -29,8 +32,8 @@ func NewBuilder(lex *lex.Lexer) *Builder {
 }
 
 // Mark adds a placeholder for new
-func (b *Builder) Mark() Marker {
-	m := Marker{}
+func (b *Builder) Mark() *Marker {
+	m := &Marker{}
 	b.Marks = append(b.Marks, m)
 	return m
 }
@@ -51,10 +54,24 @@ func (b *Builder) AdvanceLexer() {
 
 }
 
+func (b *Builder) Error(err string) {
+	// TODO implement
+}
+
 type Parser struct {
 }
 
-func (p *Parser) AdvanceIfMatches(b Builder, m map[state.ElementType]bool) bool {
+func (p *Parser) ParseFieldName(b *Builder) bool {
+	marker := b.Mark()
+	if !p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES) {
+		b.Error("expected field name")
+		marker.Drop()
+		return false
+	}
+	return true
+}
+
+func (p *Parser) AdvanceIfMatches(b *Builder, m map[state.ElementType]bool) bool {
 	_, ok := m[b.GetTokenType()]
 	if ok {
 		b.AdvanceLexer()

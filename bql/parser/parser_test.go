@@ -52,24 +52,34 @@ func TestBuilderAdvanceLexer(t *testing.T) {
 	}
 }
 
+func TestBuilderError(t *testing.T) {
+	b := &parser.Builder{}
+
+	b.Error("expecting field name")
+
+	// TODO finish test
+}
+
 // ////////////////////////////////////
 // //////////// PARSER ///////////////
-func TestParseFieldName(t *testing.T) {
-
-	b := parser.Builder{}
-	_ = b.Mark()
-
-	if len(b.Marks) != 1 {
-		t.Fatalf("Should have 1 mark but has %d marks", len(b.Marks))
+func TestParseInvalidFieldName(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("="))
+	b.AdvanceLexer()
+	success := p.ParseFieldName(b)
+	if !b.Marks[0].Dropped {
+		t.Fatalf("expected mark to have been dropped")
+	}
+	if success {
+		t.Fatalf("expected parseFieldName to have failed")
 	}
 }
 
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}
-	b := parser.Builder{}
 
 	input := "book"
-	b.Lexer = state.BQLLexer(input)
+	b := parser.NewBuilder(state.BQLLexer(input))
 
 	b.AdvanceLexer()
 
