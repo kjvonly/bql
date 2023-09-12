@@ -12,10 +12,16 @@ type Token struct {
 
 type Marker struct {
 	Dropped bool
+	Type    state.ElementType
 }
 
 func (m *Marker) Drop() {
 	m.Dropped = true
+}
+
+func (m *Marker) Done(t state.ElementType) {
+	// TODO check everything after this is done
+	m.Type = t
 }
 
 type Build interface {
@@ -68,7 +74,7 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 		marker.Drop()
 		return false
 	}
-	marker.Done()
+	marker.Done(state.IDENTIFIER)
 	return true
 }
 
