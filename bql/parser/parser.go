@@ -68,6 +68,7 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 		marker.Drop()
 		return false
 	}
+	marker.Done()
 	return true
 }
 
