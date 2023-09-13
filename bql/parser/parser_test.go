@@ -20,7 +20,7 @@ func TestDoneFailure(t *testing.T) {
 // ///////////////////////////////////
 // /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
-	b := parser.Builder{}
+	b := parser.NewBuilder(nil)
 	_ = b.Mark()
 
 	if b.Markers == nil {
