@@ -26,13 +26,11 @@ type MarkerList struct {
 
 type Marker struct {
 	Next *Marker
+	Prev *Marker
 
 	IsDropped bool
 	IsDone    bool
 	Type      state.ElementType
-}
-
-func (m *Marker) AddMarker(n *Marker) {
 }
 
 func (m *Marker) Drop() {
@@ -77,6 +75,7 @@ func (b *Builder) Mark() *Marker {
 	}
 
 	m := &Marker{}
+	m.Prev = b.Markers.Tail
 	b.Markers.Tail.Next = m
 	b.Markers.Tail = m
 

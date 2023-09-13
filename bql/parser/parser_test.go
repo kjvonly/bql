@@ -37,6 +37,10 @@ func TestBuilderMark(t *testing.T) {
 	b := parser.NewBuilder(nil)
 	m := b.Mark()
 
+	if m.Next != nil && m.Prev != nil {
+		t.Fatalf("Should have nil Next and Prev")
+	}
+
 	if b.Markers == nil {
 		t.Fatalf("Should have non nil Builder.Marker")
 	}
@@ -57,6 +61,10 @@ func TestBuilderMark(t *testing.T) {
 
 	if b.Markers.Head.Next != m2 {
 		t.Fatalf("Should assign next to previous tail marker ")
+	}
+
+	if m2.Prev != b.Markers.Head {
+		t.Fatalf("Should assign Prev to previous marker")
 	}
 }
 
