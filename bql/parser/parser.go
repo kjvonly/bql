@@ -41,9 +41,10 @@ func (m *Marker) Drop() {
 
 func (m *Marker) Done(t state.ElementType) {
 	{
-		for n := m.Next; n != nil; n = m.Next {
+		for n := m.Next; n != nil; n = n.Next {
 			if !n.IsDone {
-				panic("child marker not done.")
+				//TODO should change panic to something else
+				panic("all markers past this marker not done.")
 			}
 		}
 	}
@@ -76,7 +77,6 @@ func (b *Builder) Mark() *Marker {
 	}
 
 	m := &Marker{}
-
 	b.Markers.Tail.Next = m
 	b.Markers.Tail = m
 

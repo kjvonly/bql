@@ -8,13 +8,27 @@ import (
 )
 
 func TestDoneSuccess(t *testing.T) {
-	m := parser.NewMarker()
-	m.Done(state.IDENTIFIER)
+	b := parser.NewBuilder(state.BQLLexer("book = john"))
+	m1 := b.Mark()
+	m2 := b.Mark()
+
+	m2.Done(state.EQ)
+	m1.Done(state.IDENTIFIER)
 }
 
 func TestDoneFailure(t *testing.T) {
-	m := parser.NewMarker()
-	m.Done(state.IDENTIFIER)
+	b := parser.NewBuilder(state.BQLLexer("book = john"))
+	m1 := b.Mark()
+	b.Mark()
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+
+	// second mark never called done
+	m1.Done(state.IDENTIFIER)
 }
 
 // ///////////////////////////////////
