@@ -142,6 +142,27 @@ func TestParseValidFieldName(t *testing.T) {
 	}
 }
 
+func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("="))
+	b.AdvanceLexer()
+	success := p.ParseTerminalClause(b)
+
+	if success {
+		t.Fatalf("expected false")
+	}
+}
+
+func TestParseTerminalClauseProperFieldName(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("book"))
+	b.AdvanceLexer()
+	success := p.ParseTerminalClause(b)
+
+	if !success {
+		t.Fatalf("expected false")
+	}
+}
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}
 

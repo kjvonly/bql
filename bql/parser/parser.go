@@ -116,8 +116,18 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 	return true
 }
 
+func (p *Parser) ParseTerminalClause(b *Builder) bool {
+	marker := b.Mark()
+	if !p.ParseFieldName(b) {
+		marker.Drop()
+		return false
+	}
+	return true
+}
+
 func (p *Parser) AdvanceIfMatches(b *Builder, m map[state.ElementType]bool) bool {
-	_, ok := m[b.GetTokenType()]
+	tt := b.GetTokenType()
+	_, ok := m[tt]
 	if ok {
 		b.AdvanceLexer()
 		return true
