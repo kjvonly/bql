@@ -136,7 +136,12 @@ func TestParseValidFieldName(t *testing.T) {
 	if !success {
 		t.Fatalf("expected parseFieldName to have succeeded")
 	}
+
+	if b.Markers.Tail.Type != state.IDENTIFIER {
+		t.Fatalf("expected marker have IDENTIFIER type")
+	}
 }
+
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}
 
