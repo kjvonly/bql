@@ -21,10 +21,28 @@ func TestDoneFailure(t *testing.T) {
 // /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
 	b := parser.NewBuilder(nil)
-	_ = b.Mark()
+	m := b.Mark()
 
 	if b.Markers == nil {
 		t.Fatalf("Should have non nil Builder.Marker")
+	}
+
+	if b.Markers.Head != b.Markers.Tail {
+		t.Fatalf("Should assign head to tail")
+	}
+
+	if m != b.Markers.Head {
+		t.Fatalf("Should return head marker")
+	}
+
+	m2 := b.Mark()
+
+	if m2 != b.Markers.Tail {
+		t.Fatalf("Should append marker to end of linked list")
+	}
+
+	if b.Markers.Head.Next != m2 {
+		t.Fatalf("Should assign next to previous tail marker ")
 	}
 }
 

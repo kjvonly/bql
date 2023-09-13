@@ -74,7 +74,13 @@ func (b *Builder) Mark() *Marker {
 		b.Markers.Tail = b.Markers.Head
 		return b.Markers.Head
 	}
-	return nil
+
+	m := &Marker{}
+
+	b.Markers.Tail.Next = m
+	b.Markers.Tail = m
+
+	return m
 }
 
 func (b *Builder) GetTokenType() state.ElementType {
