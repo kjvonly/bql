@@ -10,17 +10,44 @@ type Token struct {
 	Value interface{}
 }
 
+// NewMarker creates root Marker
+func NewMarker() *Marker {
+	return &Marker{}
+}
+
+func NewMarkerList() *MarkerList {
+	return &MarkerList{}
+}
+
+type MarkerList struct {
+	Head *Marker
+	Tail *Marker
+}
+
 type Marker struct {
-	Dropped bool
-	Type    state.ElementType
+	Next *Marker
+
+	IsDropped bool
+	IsDone    bool
+	Type      state.ElementType
+}
+
+func (m *Marker) AddMarker(n *Marker) {
 }
 
 func (m *Marker) Drop() {
-	m.Dropped = true
+	m.IsDropped = true
 }
 
 func (m *Marker) Done(t state.ElementType) {
-	// TODO check everything after this is done
+	{
+		for n := m.Next; n != nil; n = m.Next {
+			if !n.IsDone {
+				panic("child marker not done.")
+			}
+		}
+	}
+	m.IsDone = true
 	m.Type = t
 }
 
@@ -28,20 +55,26 @@ type Build interface {
 }
 
 type Builder struct {
-	Marks        []*Marker
+	Markers      *MarkerList
 	Lexer        *lex.Lexer
 	CurrentToken Token
 }
 
 func NewBuilder(lex *lex.Lexer) *Builder {
-	return &Builder{Lexer: lex}
+	return &Builder{
+		Lexer:   lex,
+		Markers: NewMarkerList(),
+	}
 }
 
 // Mark adds a placeholder for new
 func (b *Builder) Mark() *Marker {
-	m := &Marker{}
-	b.Marks = append(b.Marks, m)
-	return m
+	if b.Markers.Head == nil {
+		b.Markers.Head = NewMarker()
+		b.Markers.Tail = b.Markers.Head
+		return b.Markers.Head
+	}
+	return nil
 }
 
 func (b *Builder) GetTokenType() state.ElementType {

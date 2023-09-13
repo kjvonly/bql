@@ -7,14 +7,24 @@ import (
 	"launchpad.net/kjvonly-bql/bql/state"
 )
 
+func TestDoneSuccess(t *testing.T) {
+	m := parser.NewMarker()
+	m.Done(state.IDENTIFIER)
+}
+
+func TestDoneFailure(t *testing.T) {
+	m := parser.NewMarker()
+	m.Done(state.IDENTIFIER)
+}
+
 // ///////////////////////////////////
 // /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
 	b := parser.Builder{}
 	_ = b.Mark()
 
-	if len(b.Marks) != 1 {
-		t.Fatalf("Should have 1 mark but has %d marks", len(b.Marks))
+	if b.Markers == nil {
+		t.Fatalf("Should have non nil Builder.Marker")
 	}
 }
 
@@ -67,7 +77,7 @@ func TestParseInvalidFieldName(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("="))
 	b.AdvanceLexer()
 	success := p.ParseFieldName(b)
-	if !b.Marks[0].Dropped {
+	if !b.Markers.Head.IsDropped {
 		t.Fatalf("expected mark to have been dropped")
 	}
 	if success {
@@ -80,7 +90,7 @@ func TestParseValidFieldName(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book"))
 	b.AdvanceLexer()
 	success := p.ParseFieldName(b)
-	if b.Marks[0].Dropped {
+	if b.Markers.Head.IsDropped {
 		t.Fatalf("expected mark not to have been dropped")
 	}
 	if !success {
