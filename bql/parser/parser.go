@@ -122,7 +122,16 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 		marker.Drop()
 		return false
 	}
+
+	if p.AdvanceIfMatches(b, state.SIMPLE_OPERATORS) {
+		p.ParseOperand(b)
+	}
+	marker.Done(state.SIMPLE_CLAUSE)
 	return true
+}
+
+func (p *Parser) ParseOperand(b *Builder) {
+
 }
 
 func (p *Parser) AdvanceIfMatches(b *Builder, m map[state.ElementType]bool) bool {

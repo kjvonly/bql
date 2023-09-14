@@ -155,13 +155,22 @@ func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
 
 func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	p := parser.Parser{}
-	b := parser.NewBuilder(state.BQLLexer("book"))
+	b := parser.NewBuilder(state.BQLLexer("book ="))
 	b.AdvanceLexer()
 	success := p.ParseTerminalClause(b)
 
 	if !success {
 		t.Fatalf("expected false")
 	}
+
+	if b.Markers.Head.Type != state.SIMPLE_CLAUSE {
+		t.Fatalf("expected simple clause but was %s", b.Markers.Tail.Type)
+	}
+
+}
+
+func TestParseOperand(t *testing.T) {
+
 }
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}

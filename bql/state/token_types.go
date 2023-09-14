@@ -2,6 +2,8 @@ package state
 
 type ElementType string
 
+const SIMPLE_CLAUSE ElementType = "SIMPLE_CLAUSE"
+
 // TOKEN SETS
 
 const STRING_LITERAL ElementType = "STRING_LITERAL"
