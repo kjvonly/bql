@@ -170,7 +170,18 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 }
 
 func TestParseOperand(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("john"))
+	b.AdvanceLexer()
+	parsed := p.ParseOperand(b)
 
+	if b.Markers.Tail.Type != state.LITERAL {
+		t.Fatalf("expected Literal marker but got %s", b.Markers.Tail.Type)
+	}
+
+	if !parsed {
+		t.Fatalf("expected parsed to be true but was false")
+	}
 }
 func TestAdvanceIfMatches(t *testing.T) {
 	p := parser.Parser{}

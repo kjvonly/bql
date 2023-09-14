@@ -130,8 +130,19 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	return true
 }
 
-func (p *Parser) ParseOperand(b *Builder) {
-
+func (p *Parser) ParseOperand(b *Builder) bool {
+	marker := b.Mark()
+	parsed := true
+	if p.AdvanceIfMatches(b, state.LITERALS) {
+		marker.Done(state.LITERAL)
+	} else {
+		marker.Drop()
+		parsed = false
+	}
+	if !parsed {
+		b.Error("expected either literal")
+	}
+	return parsed
 }
 
 func (p *Parser) AdvanceIfMatches(b *Builder, m map[state.ElementType]bool) bool {
