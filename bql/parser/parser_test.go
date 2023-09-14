@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"fmt"
 	"testing"
 
 	"launchpad.net/kjvonly-bql/bql/parser"
@@ -155,7 +156,7 @@ func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
 
 func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	p := parser.Parser{}
-	b := parser.NewBuilder(state.BQLLexer("book ="))
+	b := parser.NewBuilder(state.BQLLexer("book = john"))
 	b.AdvanceLexer()
 	success := p.ParseTerminalClause(b)
 
@@ -167,6 +168,11 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 		t.Fatalf("expected simple clause but was %s", b.Markers.Tail.Type)
 	}
 
+	n := b.Markers.Head
+	for n != nil {
+		fmt.Printf("type: %s\n", n.Type)
+		n = n.Next
+	}
 }
 
 func TestParseOperand(t *testing.T) {
