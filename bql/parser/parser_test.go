@@ -1,7 +1,6 @@
 package parser_test
 
 import (
-	"fmt"
 	"testing"
 
 	"launchpad.net/kjvonly-bql/bql/parser"
@@ -168,9 +167,12 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 		t.Fatalf("expected simple clause but was %s", b.Markers.Tail.Type)
 	}
 
+	expectedElementTypeOrdered := []state.ElementType{state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
 	n := b.Markers.Head
-	for n != nil {
-		fmt.Printf("type: %s\n", n.Type)
+	for i := 0; n != nil; i++ {
+		if expectedElementTypeOrdered[i] != n.Type {
+			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], n.Type)
+		}
 		n = n.Next
 	}
 }
