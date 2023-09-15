@@ -105,14 +105,14 @@ func (b *Builder) Error(err string) {
 type Parser struct {
 }
 
-func (p *Parser) ParseFieldName(b *Builder) bool {
+func (p *Parser) ParseAndClause(b *Builder) bool {
 	marker := b.Mark()
-	if !p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES) {
-		b.Error("expected field name")
+	if !p.ParseTerminalClause(b) {
 		marker.Drop()
 		return false
+
 	}
-	marker.Done(state.IDENTIFIER)
+
 	return true
 }
 
@@ -127,6 +127,17 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 		p.ParseOperand(b)
 	}
 	marker.Done(state.SIMPLE_CLAUSE)
+	return true
+}
+
+func (p *Parser) ParseFieldName(b *Builder) bool {
+	marker := b.Mark()
+	if !p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES) {
+		b.Error("expected field name")
+		marker.Drop()
+		return false
+	}
+	marker.Done(state.IDENTIFIER)
 	return true
 }
 
