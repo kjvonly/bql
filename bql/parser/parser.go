@@ -113,6 +113,15 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 
 	}
 
+	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
+		if !p.ParseTerminalClause(b) {
+			// b.Errors probably need to panic or terminate parse
+			b.Error("expected clause after AND keyword")
+		}
+		marker.Done(state.AND_CLAUSE)
+
+	}
+
 	return true
 }
 
