@@ -1,6 +1,7 @@
 package parser
 
 /**
+ * 13f1ee1f
  * Parser implements ANTLR process in go
  * Used jetbrains implementation as inspiration.
  *
