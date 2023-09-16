@@ -25,8 +25,8 @@ type MarkerList struct {
 }
 
 type Marker struct {
-	Next *Marker
-	Prev *Marker
+	Next   *Marker
+	Parent *Marker
 
 	IsDropped bool
 	IsDone    bool
@@ -57,7 +57,7 @@ func (m *Marker) Done(t state.ElementType) {
 // @return the new marker instance.
 func (m *Marker) Precede(b *Builder) *Marker {
 	pm := NewMarker()
-	pm.Prev = m.Prev
+	pm.Parent = m.Parent
 	b.Markers.Tail = pm
 	return pm
 }
@@ -87,7 +87,7 @@ func (b *Builder) Mark() *Marker {
 	}
 
 	m := &Marker{}
-	m.Prev = b.Markers.Tail
+	m.Parent = b.Markers.Tail
 	b.Markers.Tail.Next = m
 	b.Markers.Tail = m
 

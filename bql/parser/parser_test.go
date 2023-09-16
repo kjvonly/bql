@@ -38,7 +38,7 @@ func TestMarkerPrecede(t *testing.T) {
 
 	pm := m2.Precede(b)
 
-	if pm.Prev != m1 {
+	if pm.Parent != m1 {
 		t.Fatalf("expected precede prev marker to equal m1")
 	}
 
@@ -54,7 +54,7 @@ func TestBuilderMark(t *testing.T) {
 	b := parser.NewBuilder(nil)
 	m := b.Mark()
 
-	if m.Next != nil && m.Prev != nil {
+	if m.Next != nil && m.Parent != nil {
 		t.Fatalf("Should have nil Next and Prev")
 	}
 
@@ -80,7 +80,7 @@ func TestBuilderMark(t *testing.T) {
 		t.Fatalf("Should assign next to previous tail marker ")
 	}
 
-	if m2.Prev != b.Markers.Head {
+	if m2.Parent != b.Markers.Head {
 		t.Fatalf("Should assign Prev to previous marker")
 	}
 }
