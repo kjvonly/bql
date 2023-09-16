@@ -36,10 +36,14 @@ func TestMarkerPrecede(t *testing.T) {
 	m1 := b.Mark()
 	m2 := b.Mark()
 
-	pm := m2.Precede()
+	pm := m2.Precede(b)
 
 	if pm.Prev != m1 {
 		t.Fatalf("expected precede prev marker to equal m1")
+	}
+
+	if b.Markers.Tail != pm {
+		t.Fatalf("expected new tail to be preceded marker but was %+v", b.Markers.Tail)
 	}
 
 }

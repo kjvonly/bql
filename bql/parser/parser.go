@@ -55,9 +55,10 @@ func (m *Marker) Done(t state.ElementType) {
 // a currently active marker.
 //
 // @return the new marker instance.
-func (m *Marker) Precede() *Marker {
+func (m *Marker) Precede(b *Builder) *Marker {
 	pm := NewMarker()
 	pm.Prev = m.Prev
+	b.Markers.Tail = pm
 	return pm
 }
 
@@ -130,7 +131,7 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 			b.Error("expected clause after AND keyword")
 		}
 		marker.Done(state.AND_CLAUSE)
-		marker.Precede()
+		marker.Precede(b)
 
 	}
 
