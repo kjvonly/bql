@@ -50,6 +50,17 @@ func (m *Marker) Done(t state.ElementType) {
 	m.Type = t
 }
 
+// Creates and returns a new marker starting immediately before the start of
+// this marker and extending after its end. Can be called on a completed or
+// a currently active marker.
+//
+// @return the new marker instance.
+func (m *Marker) Precede() *Marker {
+	pm := NewMarker()
+	pm.Prev = m.Prev
+	return pm
+}
+
 type Build interface {
 }
 
@@ -119,6 +130,7 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 			b.Error("expected clause after AND keyword")
 		}
 		marker.Done(state.AND_CLAUSE)
+		marker.Precede()
 
 	}
 

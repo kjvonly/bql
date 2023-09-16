@@ -31,6 +31,19 @@ func TestDoneFailure(t *testing.T) {
 	m1.Done(state.IDENTIFIER)
 }
 
+func TestMarkerPrecede(t *testing.T) {
+	b := parser.NewBuilder(state.BQLLexer("book = john"))
+	m1 := b.Mark()
+	m2 := b.Mark()
+
+	pm := m2.Precede()
+
+	if pm.Prev != m1 {
+		t.Fatalf("expected precede prev marker to equal m1")
+	}
+
+}
+
 // ///////////////////////////////////
 // /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
