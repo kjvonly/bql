@@ -46,6 +46,18 @@ func TestMarkerPrecede(t *testing.T) {
 		t.Fatalf("expected new tail to be preceded marker but was %+v", b.Markers.Tail)
 	}
 
+	hasChild := false
+
+	for _, v := range pm.Parent.Children {
+		if v == pm {
+			hasChild = true
+		}
+	}
+
+	if !hasChild {
+		t.Fatalf("expected parent to have pm in Children array but did not")
+	}
+
 }
 
 // ///////////////////////////////////

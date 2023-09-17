@@ -62,6 +62,7 @@ func (m *Marker) Done(t state.ElementType) {
 func (m *Marker) Precede(b *Builder) *Marker {
 	pm := NewMarker()
 	pm.Parent = m.Parent
+	pm.Parent.Children = append(pm.Parent.Children, pm)
 	b.Markers.Tail = pm
 	return pm
 }
@@ -136,7 +137,6 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 		}
 		marker.Done(state.AND_CLAUSE)
 		marker.Precede(b)
-
 	}
 
 	return true
