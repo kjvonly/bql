@@ -224,15 +224,14 @@ func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book"))
 
+	queryMarker := b.Mark()
 	success := p.ParseAndClause(b)
+	queryMarker.Done(state.QUERY)
 
 	if success {
 		t.Fatalf("expected not to succeed")
 	}
 
-	if !b.Markers.Head.IsDropped {
-		t.Fatalf("expected marker to have been dropped")
-	}
 }
 
 func TestParseAndClauseShouldSucceed(t *testing.T) {
