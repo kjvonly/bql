@@ -67,9 +67,10 @@ type Build interface {
 }
 
 type Builder struct {
-	Markers      *MarkerList
-	Lexer        *lex.Lexer
-	CurrentToken Token
+	Markers          *MarkerList
+	Lexer            *lex.Lexer
+	CurrentToken     Token
+	OrphanedChildren []*Marker
 }
 
 func NewBuilder(lex *lex.Lexer) *Builder {
@@ -88,11 +89,18 @@ func (b *Builder) Mark() *Marker {
 	}
 
 	m := &Marker{}
-	m.Parent = b.Markers.Tail
-	b.Markers.Tail.Children = append(b.Markers.Tail.Children, m)
-	b.Markers.Tail = m
-
+	//m.Parent = b.Markers.Tail
+	//b.Markers.Tail.Children = append(b.Markers.Tail.Children, m)
+	//b.Markers.Tail = m
+	b.OrphanedChildren = append(b.OrphanedChildren, m)
 	return m
+}
+
+func (b *Builder) AssignOrphanedChildren(m *Marker) {
+	m.Children = append(m.Children, b.OrphanedChildren...)
+	for _, c := range m.Children {
+		c.Parent = m
+	}
 }
 
 func (b *Builder) GetTokenType() state.ElementType {
@@ -124,6 +132,7 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 		marker.Drop()
 		return false
 	}
+
 	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
 		marker.Precede(b)
 
@@ -144,64 +153,70 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 }
 
 func (p *Parser) ParseAndClause(b *Builder) bool {
-	marker := b.Mark()
+	var marker *Marker
 	if !p.ParseTerminalClause(b) {
-		marker.Drop()
 		return false
 	}
 
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
-		marker.Precede(b)
+		if marker == nil {
+			marker = NewMarker()
+		}
+		//marker.Precede(b)
 
 		if !p.ParseTerminalClause(b) {
 			// b.Errors probably need to panic or terminate parse
 			b.Error("expected clause after AND keyword")
 		}
-
 	}
 
-	if len(marker.Children) > 0 {
+	if marker != nil {
 		marker.Done(state.AND_CLAUSE)
-	} else {
-		marker.Drop()
+		b.AssignOrphanedChildren(marker)
 	}
 
 	return true
 }
 
 func (p *Parser) ParseTerminalClause(b *Builder) bool {
-	marker := b.Mark()
+	var marker *Marker
 	if !p.ParseFieldName(b) {
 		marker.Drop()
 		return false
 	}
 
 	if p.AdvanceIfMatches(b, state.SIMPLE_OPERATORS) {
-		marker.Precede(b)
+		marker = &Marker{}
+		//marker.Precede(b)
 		p.ParseOperand(b)
 	}
-	marker.Done(state.SIMPLE_CLAUSE)
+
+	if marker != nil {
+		marker.Done(state.SIMPLE_CLAUSE)
+	}
+
 	return true
 }
 
 func (p *Parser) ParseFieldName(b *Builder) bool {
-	marker := b.Mark()
 	if !p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES) {
 		b.Error("expected field name")
-		marker.Drop()
+		//marker.Drop()
 		return false
 	}
+	marker := b.Mark()
 	marker.Done(state.IDENTIFIER)
 	return true
 }
 
 func (p *Parser) ParseOperand(b *Builder) bool {
-	marker := b.Mark()
+	var marker *Marker
 	parsed := true
 	if p.AdvanceIfMatches(b, state.LITERALS) {
+		marker = b.Mark()
 		marker.Done(state.LITERAL)
 	} else {
-		marker.Drop()
+		//	marker.Drop()
 		parsed = false
 	}
 	if !parsed {
