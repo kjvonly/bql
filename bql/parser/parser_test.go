@@ -206,6 +206,42 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 	}
 }
 
+func TestParseAndOrClauseShouldSucceed(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("book = john or book = mark and book = matthew"))
+	b.AdvanceLexer()
+	queryMarker := b.Mark() // Query Marker needed for testing
+	success := p.ParseOrClause(b)
+	queryMarker.Done(state.QUERY)
+	b.AssignOrphanedChildren(queryMarker)
+
+	if !success {
+		t.Fatalf("expected to succeed")
+	}
+
+	expectedElementTypeOrdered := []state.ElementType{
+		state.QUERY,
+		state.OR_CLAUSE,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+		state.AND_CLAUSE,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+	}
+
+	ma := flattenMarkers(b.Markers.Head)
+	for i := 0; i < len(ma); i++ {
+		if expectedElementTypeOrdered[i] != ma[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
+		}
+	}
+}
+
 func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book"))
