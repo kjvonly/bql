@@ -148,9 +148,7 @@ func TestParseValidFieldName(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book"))
 	b.AdvanceLexer()
 	success := p.ParseFieldName(b)
-	if b.Markers.Head.IsDropped {
-		t.Fatalf("expected mark not to have been dropped")
-	}
+
 	if !success {
 		t.Fatalf("expected parseFieldName to have succeeded")
 	}
@@ -305,9 +303,7 @@ func flattenMarkers(m *parser.Marker) []*parser.Marker {
 
 	ma := []*parser.Marker{}
 
-	if !m.IsDropped {
-		ma = append(ma, m)
-	}
+	ma = append(ma, m)
 
 	for i := 0; i < len(m.Children); i++ {
 		ma = append(ma, flattenMarkers(m.Children[i])...)

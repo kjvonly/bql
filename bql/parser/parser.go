@@ -28,18 +28,14 @@ type Marker struct {
 	Children []*Marker
 	Parent   *Marker
 
-	IsDropped bool
-	IsDone    bool
-	Type      state.ElementType
-}
-
-func (m *Marker) Drop() {
-	m.IsDropped = true
+	IsDone bool
+	Type   state.ElementType
+	Data   interface{}
 }
 
 func checkAllMarkersDoneOrDropped(n []*Marker) {
 	for i := 0; i < len(n); i++ {
-		if !n[i].IsDone && !n[i].IsDropped {
+		if !n[i].IsDone {
 			//TODO should change panic to something else
 			panic("all markers past this marker not done.")
 		}
