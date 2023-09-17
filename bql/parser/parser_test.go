@@ -32,32 +32,13 @@ func TestDoneFailure(t *testing.T) {
 }
 
 func TestMarkerPrecede(t *testing.T) {
-	// b := parser.NewBuilder(state.BQLLexer("book = john"))
-	// _ = b.Mark()
-	// m2 := b.Mark()
+	b := parser.NewBuilder(state.BQLLexer("book = john"))
+	m1 := b.Mark()
+	m1.Precede(b)
 
-	// m2.Precede(b)
-
-	// if pm.Parent != m2 {
-	// 	t.Fatalf("expected precede prev marker to equal m1")
-	// }
-
-	// if b.Markers.Tail != pm {
-	// 	t.Fatalf("expected new tail to be preceded marker but was %+v", b.Markers.Tail)
-	// }
-
-	// hasChild := false
-
-	// for _, v := range pm.Parent.Children {
-	// 	if v == pm {
-	// 		hasChild = true
-	// 	}
-	// }
-
-	// if !hasChild {
-	// 	t.Fatalf("expected parent to have pm in Children array but did not")
-	// }
-
+	if b.Markers.Tail != m1 {
+		t.Fatalf("expected new tail to be preceded marker but was %+v", b.Markers.Tail)
+	}
 }
 
 // ///////////////////////////////////
