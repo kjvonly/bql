@@ -27,10 +27,9 @@ type MarkerList struct {
 type Marker struct {
 	Children []*Marker
 	Parent   *Marker
-
-	IsDone bool
-	Type   state.ElementType
-	Data   interface{}
+	IsDone   bool
+	Type     state.ElementType
+	Value    interface{}
 }
 
 func checkAllMarkersDoneOrDropped(n []*Marker) {
@@ -135,6 +134,7 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
 		if marker == nil {
 			marker = NewMarker()
+			marker.Value = "OR"
 			b.AssignOrphanedChildren(marker)
 		}
 
@@ -163,6 +163,7 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
 		if marker == nil {
 			marker = NewMarker()
+			marker.Value = "AND"
 			b.AssignOrphanedChildren(marker)
 		}
 
@@ -188,6 +189,7 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 		return false
 	}
 
+	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.SIMPLE_OPERATORS) {
 		marker = &Marker{}
 		//marker.Precede(b)
@@ -195,6 +197,7 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	}
 
 	if marker != nil {
+		marker.Value = ct.Value
 		marker.Done(state.SIMPLE_CLAUSE)
 		b.AssignOrphanedChildren(marker)
 	}
@@ -203,12 +206,13 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 }
 
 func (p *Parser) ParseFieldName(b *Builder) bool {
+	ct := b.CurrentToken
 	if !p.AdvanceIfMatches(b, state.VALID_FIELD_NAMES) {
 		b.Error("expected field name")
-		//marker.Drop()
 		return false
 	}
 	marker := b.Mark()
+	marker.Value = ct.Value
 	marker.Done(state.IDENTIFIER)
 	return true
 }
@@ -216,8 +220,10 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 func (p *Parser) ParseOperand(b *Builder) bool {
 	var marker *Marker
 	parsed := true
+	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.LITERALS) {
 		marker = b.Mark()
+		marker.Value = ct.Value
 		marker.Done(state.LITERAL)
 	} else {
 		//	marker.Drop()
