@@ -102,7 +102,9 @@ func (b *Builder) AssignOrphanedChildren(m *Marker) {
 		c.Parent = m
 	}
 	b.OrphanedChildren = b.OrphanedChildren[:0]
-	b.OrphanedChildren = append(b.OrphanedChildren, m)
+	if m.IsDone {
+		b.OrphanedChildren = append(b.OrphanedChildren, m)
+	}
 }
 
 func (b *Builder) GetTokenType() state.ElementType {
@@ -137,17 +139,20 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
 		if marker == nil {
 			marker = NewMarker()
+			b.AssignOrphanedChildren(marker)
 		}
 
 		if !p.ParseAndClause(b) {
 			// b.Errors probably need to panic or terminate parse
 			b.Error("expected clause after OR keyword")
 		}
+
+		b.AssignOrphanedChildren(marker)
 	}
 
 	if marker != nil {
-		b.AssignOrphanedChildren(marker)
 		marker.Done(state.OR_CLAUSE)
+		b.AssignOrphanedChildren(marker)
 	}
 
 	return true
@@ -162,17 +167,20 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
 		if marker == nil {
 			marker = NewMarker()
+			b.AssignOrphanedChildren(marker)
 		}
 
 		if !p.ParseTerminalClause(b) {
 			// b.Errors probably need to panic or terminate parse
 			b.Error("expected clause after AND keyword")
+			return false
 		}
+		b.AssignOrphanedChildren(marker)
 	}
 
 	if marker != nil {
-		b.AssignOrphanedChildren(marker)
 		marker.Done(state.AND_CLAUSE)
+		b.AssignOrphanedChildren(marker)
 	}
 
 	return true
@@ -181,7 +189,6 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	var marker *Marker
 	if !p.ParseFieldName(b) {
-		//marker.Drop()
 		return false
 	}
 
@@ -192,8 +199,8 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	}
 
 	if marker != nil {
-		b.AssignOrphanedChildren(marker)
 		marker.Done(state.SIMPLE_CLAUSE)
+		b.AssignOrphanedChildren(marker)
 	}
 
 	return true

@@ -123,8 +123,8 @@ func TestBuilderAssignOrphanedChildren(t *testing.T) {
 		}
 	}
 
-	if len(b.OrphanedChildren) != 1 {
-		t.Fatalf("expected OrphanedChildren to be 1")
+	if len(b.OrphanedChildren) != 0 {
+		t.Fatalf("expected OrphanedChildren to be 0")
 	}
 }
 
