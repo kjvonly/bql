@@ -25,8 +25,8 @@ type MarkerList struct {
 }
 
 type Marker struct {
-	Next   []*Marker
-	Parent *Marker
+	Children []*Marker
+	Parent   *Marker
 
 	IsDropped bool
 	IsDone    bool
@@ -44,12 +44,12 @@ func checkAllMarkersDoneOrDropped(n []*Marker) {
 			panic("all markers past this marker not done.")
 		}
 
-		checkAllMarkersDoneOrDropped(n[i].Next)
+		checkAllMarkersDoneOrDropped(n[i].Children)
 	}
 }
 
 func (m *Marker) Done(t state.ElementType) {
-	checkAllMarkersDoneOrDropped(m.Next)
+	checkAllMarkersDoneOrDropped(m.Children)
 	m.IsDone = true
 	m.Type = t
 }
@@ -92,7 +92,7 @@ func (b *Builder) Mark() *Marker {
 
 	m := &Marker{}
 	m.Parent = b.Markers.Tail
-	b.Markers.Tail.Next = append(b.Markers.Tail.Next, m)
+	b.Markers.Tail.Children = append(b.Markers.Tail.Children, m)
 	b.Markers.Tail = m
 
 	return m

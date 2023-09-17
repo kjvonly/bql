@@ -54,7 +54,7 @@ func TestBuilderMark(t *testing.T) {
 	b := parser.NewBuilder(nil)
 	m := b.Mark()
 
-	if m.Next != nil && m.Parent != nil {
+	if m.Children != nil && m.Parent != nil {
 		t.Fatalf("Should have nil Next and Prev")
 	}
 
@@ -76,7 +76,7 @@ func TestBuilderMark(t *testing.T) {
 		t.Fatalf("Should append marker to end of linked list")
 	}
 
-	if b.Markers.Head.Next[0] != m2 {
+	if b.Markers.Head.Children[0] != m2 {
 		t.Fatalf("Should assign next to previous tail marker ")
 	}
 
@@ -206,8 +206,8 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	f = func(m *parser.Marker) []*parser.Marker {
 		ma := []*parser.Marker{m}
 
-		for i := 0; i < len(m.Next); i++ {
-			ma = append(ma, f(m.Next[i])...)
+		for i := 0; i < len(m.Children); i++ {
+			ma = append(ma, f(m.Children[i])...)
 		}
 		return ma
 	}
