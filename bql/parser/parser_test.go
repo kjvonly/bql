@@ -33,12 +33,12 @@ func TestDoneFailure(t *testing.T) {
 
 func TestMarkerPrecede(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	m1 := b.Mark()
+	_ = b.Mark()
 	m2 := b.Mark()
 
 	pm := m2.Precede(b)
 
-	if pm.Parent != m1 {
+	if pm.Parent != m2 {
 		t.Fatalf("expected precede prev marker to equal m1")
 	}
 
@@ -188,7 +188,7 @@ func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 
 func TestParseAndClauseShouldSucceed(t *testing.T) {
 	p := parser.Parser{}
-	b := parser.NewBuilder(state.BQLLexer("book = john and book = mark"))
+	b := parser.NewBuilder(state.BQLLexer("book = john and book = mark and book = matthew"))
 	b.AdvanceLexer()
 	queryMarker := b.Mark() // Query Marker needed for testing
 	success := p.ParseAndClause(b)

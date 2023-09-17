@@ -60,11 +60,8 @@ func (m *Marker) Done(t state.ElementType) {
 //
 // @return the new marker instance.
 func (m *Marker) Precede(b *Builder) *Marker {
-	pm := NewMarker()
-	pm.Parent = m.Parent
-	pm.Parent.Children = append(pm.Parent.Children, pm)
-	b.Markers.Tail = pm
-	return pm
+	b.Markers.Tail = m
+	return NewMarker()
 }
 
 type Build interface {
@@ -127,16 +124,17 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 	if !p.ParseTerminalClause(b) {
 		marker.Drop()
 		return false
-
 	}
 
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
+		marker.Done(state.AND_CLAUSE)
+		marker = marker.Precede(b)
+
 		if !p.ParseTerminalClause(b) {
 			// b.Errors probably need to panic or terminate parse
 			b.Error("expected clause after AND keyword")
 		}
-		marker.Done(state.AND_CLAUSE)
-		marker = marker.Precede(b)
+
 	}
 
 	marker.Drop()
