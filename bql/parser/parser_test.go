@@ -121,7 +121,8 @@ func TestBuilderError(t *testing.T) {
 }
 
 func TestBuilderAssignOrphanedChildren(t *testing.T) {
-	b := &parser.Builder{}
+	b := parser.NewBuilder(state.BQLLexer("="))
+	b.Mark()
 
 	b.OrphanedChildren = append(b.OrphanedChildren, []*parser.Marker{{}, {}}...)
 	m := &parser.Marker{}
@@ -131,6 +132,10 @@ func TestBuilderAssignOrphanedChildren(t *testing.T) {
 		if c.Parent != m {
 			t.Fatalf("expected children to have correct parent")
 		}
+	}
+
+	if len(b.OrphanedChildren) != 0 {
+		t.Fatalf("expected OrphanedChildren to be 0")
 	}
 }
 

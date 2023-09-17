@@ -101,6 +101,10 @@ func (b *Builder) AssignOrphanedChildren(m *Marker) {
 	for _, c := range m.Children {
 		c.Parent = m
 	}
+	m.Parent = b.Markers.Tail
+	b.Markers.Tail = m
+	b.OrphanedChildren = b.OrphanedChildren[:0]
+
 }
 
 func (b *Builder) GetTokenType() state.ElementType {
@@ -181,7 +185,7 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	var marker *Marker
 	if !p.ParseFieldName(b) {
-		marker.Drop()
+		//marker.Drop()
 		return false
 	}
 
@@ -193,6 +197,7 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 
 	if marker != nil {
 		marker.Done(state.SIMPLE_CLAUSE)
+		b.AssignOrphanedChildren(marker)
 	}
 
 	return true
