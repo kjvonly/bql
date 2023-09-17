@@ -76,7 +76,7 @@ func TestBuilderMark(t *testing.T) {
 		t.Fatalf("Should append marker to end of linked list")
 	}
 
-	if b.Markers.Head.Next != m2 {
+	if b.Markers.Head.Next[0] != m2 {
 		t.Fatalf("Should assign next to previous tail marker ")
 	}
 
@@ -201,11 +201,22 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 
 	expectedElementTypeOrdered := []state.ElementType{state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
 	n := b.Markers.Head
-	for i := 0; n != nil; i++ {
-		if expectedElementTypeOrdered[i] != n.Type {
+	var f func(m *parser.Marker) []*parser.Marker
+
+	f = func(m *parser.Marker) []*parser.Marker {
+		ma := []*parser.Marker{m}
+
+		for i := 0; i < len(m.Next); i++ {
+			ma = append(ma, f(m.Next[i])...)
+		}
+		return ma
+	}
+
+	ma := f(n)
+	for i := 0; i < len(expectedElementTypeOrdered); i++ {
+		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], n.Type)
 		}
-		n = n.Next
 	}
 }
 
