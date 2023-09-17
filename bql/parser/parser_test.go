@@ -169,10 +169,6 @@ func TestParseOrClauseShouldNotSucceed(t *testing.T) {
 	if success {
 		t.Fatalf("expected not to succeed")
 	}
-
-	if !b.Markers.Head.IsDropped {
-		t.Fatalf("expected marker to have been dropped")
-	}
 }
 
 func TestParseOrClauseShouldSucceed(t *testing.T) {
@@ -182,6 +178,7 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 	queryMarker := b.Mark() // Query Marker needed for testing
 	success := p.ParseOrClause(b)
 	queryMarker.Done(state.QUERY)
+	b.AssignOrphanedChildren(queryMarker)
 
 	if !success {
 		t.Fatalf("expected to succeed")

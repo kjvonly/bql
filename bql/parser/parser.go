@@ -163,7 +163,6 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 		if marker == nil {
 			marker = NewMarker()
 		}
-		//marker.Precede(b)
 
 		if !p.ParseTerminalClause(b) {
 			// b.Errors probably need to panic or terminate parse
