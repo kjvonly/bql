@@ -37,21 +37,19 @@ func (m *Marker) Drop() {
 	m.IsDropped = true
 }
 
-func checkAllMarkersDoneOrDropped(m *Marker) {
-	if (!m.IsDone || !m.IsDropped) && !(!m.IsDone && !m.IsDropped) {
-		//TODO should change panic to something else
-		panic("all markers past this marker not done.")
-	}
-
-	n := m.Next
+func checkAllMarkersDoneOrDropped(n []*Marker) {
 	for i := 0; i < len(n); i++ {
-		checkAllMarkersDoneOrDropped(n[i])
-	}
+		if !n[i].IsDone && !n[i].IsDropped {
+			//TODO should change panic to something else
+			panic("all markers past this marker not done.")
+		}
 
+		checkAllMarkersDoneOrDropped(n[i].Next)
+	}
 }
 
 func (m *Marker) Done(t state.ElementType) {
-	checkAllMarkersDoneOrDropped(m)
+	checkAllMarkersDoneOrDropped(m.Next)
 	m.IsDone = true
 	m.Type = t
 }
