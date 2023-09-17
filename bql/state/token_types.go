@@ -10,6 +10,7 @@ const IDENTIFIER ElementType = "IDENTIFIER"
 // KEYWORDS
 
 const AND_KEYWORD ElementType = "AND_KEYWORD"
+const OR_KEYWORD ElementType = "OR_KEYWORD"
 
 // Operators
 const EQ ElementType = "EQ"
@@ -31,4 +32,8 @@ var LITERALS = map[ElementType]bool{
 
 var AND_OPERATORS = map[ElementType]bool{
 	AND_KEYWORD: true,
+}
+
+var OR_OPERATORS = map[ElementType]bool{
+	OR_KEYWORD: true,
 }

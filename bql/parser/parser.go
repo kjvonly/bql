@@ -124,7 +124,23 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 		marker.Drop()
 		return false
 	}
-	return false
+	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
+		marker.Precede(b)
+
+		if !p.ParseAndClause(b) {
+			// b.Errors probably need to panic or terminate parse
+			b.Error("expected clause after OR keyword")
+		}
+	}
+
+	if len(marker.Children) > 0 {
+		marker.Done(state.OR_CLAUSE)
+	} else {
+		marker.Drop()
+	}
+
+	return true
+
 }
 
 func (p *Parser) ParseAndClause(b *Builder) bool {
