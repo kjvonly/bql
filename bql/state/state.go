@@ -102,7 +102,7 @@ func bqlInit() lex.StateFn {
 			return nil
 
 		case '=':
-			s.Emit(pos, BqlEQ, r)
+			s.Emit(pos, BqlEQ, "=")
 			return nil
 
 		case ',':
