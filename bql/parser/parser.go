@@ -59,9 +59,8 @@ func (m *Marker) Done(t state.ElementType) {
 // a currently active marker.
 //
 // @return the new marker instance.
-func (m *Marker) Precede(b *Builder) *Marker {
+func (m *Marker) Precede(b *Builder) {
 	b.Markers.Tail = m
-	return NewMarker()
 }
 
 type Build interface {
@@ -127,8 +126,7 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 	}
 
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
-		marker.Done(state.AND_CLAUSE)
-		marker = marker.Precede(b)
+		marker.Precede(b)
 
 		if !p.ParseTerminalClause(b) {
 			// b.Errors probably need to panic or terminate parse
@@ -137,7 +135,12 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 
 	}
 
-	marker.Drop()
+	if len(marker.Children) > 0 {
+		marker.Done(state.AND_CLAUSE)
+	} else {
+		marker.Drop()
+	}
+
 	return true
 }
 
