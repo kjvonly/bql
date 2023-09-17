@@ -44,8 +44,8 @@ var TokenTypes = map[lex.Token]ElementType{
 	BqlRPAR:       "RPAR",
 	BqlComma:      "COMMA",
 	BqlEQ:         "EQ",
-	BqlANDKeyword: "AND",
-	BqlORKeyword:  "OR",
+	BqlANDKeyword: "AND_KEYWORD",
+	BqlORKeyword:  "OR_KEYWORD",
 }
 
 // bqlInit returns the initial state function for our language.

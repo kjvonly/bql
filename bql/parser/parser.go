@@ -136,9 +136,10 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 			b.Error("expected clause after AND keyword")
 		}
 		marker.Done(state.AND_CLAUSE)
-		marker.Precede(b)
+		marker = marker.Precede(b)
 	}
 
+	marker.Drop()
 	return true
 }
 

@@ -171,7 +171,7 @@ func TestParseValidFieldName(t *testing.T) {
 	}
 }
 
-func TestParseAndClause(t *testing.T) {
+func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book"))
 
@@ -186,6 +186,37 @@ func TestParseAndClause(t *testing.T) {
 	}
 }
 
+func TestParseAndClauseShouldSucceed(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("book = john and book = mark"))
+	b.AdvanceLexer()
+	queryMarker := b.Mark() // Query Marker needed for testing
+	success := p.ParseAndClause(b)
+	queryMarker.Done(state.QUERY)
+
+	if !success {
+		t.Fatalf("expected to succeed")
+	}
+
+	expectedElementTypeOrdered := []state.ElementType{
+		state.QUERY,
+		state.AND_CLAUSE,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+	}
+
+	ma := flattenMarkers(b.Markers.Head)
+	for i := 0; i < len(ma); i++ {
+		if expectedElementTypeOrdered[i] != ma[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
+		}
+	}
+}
+
 func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("="))
@@ -195,6 +226,20 @@ func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
 	if success {
 		t.Fatalf("expected false")
 	}
+}
+
+func flattenMarkers(m *parser.Marker) []*parser.Marker {
+
+	ma := []*parser.Marker{}
+
+	if !m.IsDropped {
+		ma = append(ma, m)
+	}
+
+	for i := 0; i < len(m.Children); i++ {
+		ma = append(ma, flattenMarkers(m.Children[i])...)
+	}
+	return ma
 }
 
 func TestParseTerminalClauseProperFieldName(t *testing.T) {
@@ -212,22 +257,11 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	}
 
 	expectedElementTypeOrdered := []state.ElementType{state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
-	n := b.Markers.Head
-	var f func(m *parser.Marker) []*parser.Marker
 
-	f = func(m *parser.Marker) []*parser.Marker {
-		ma := []*parser.Marker{m}
-
-		for i := 0; i < len(m.Children); i++ {
-			ma = append(ma, f(m.Children[i])...)
-		}
-		return ma
-	}
-
-	ma := f(n)
+	ma := flattenMarkers(b.Markers.Head)
 	for i := 0; i < len(expectedElementTypeOrdered); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
-			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], n.Type)
+			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
 		}
 	}
 }
