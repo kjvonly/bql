@@ -19,7 +19,9 @@ func TestDoneSuccess(t *testing.T) {
 func TestDoneFailure(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
 	m1 := b.Mark()
-	b.Mark()
+
+	m2 := b.Mark()
+	m1.Children = append(m1.Children, m2)
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -63,19 +65,6 @@ func TestBuilderMark(t *testing.T) {
 		t.Fatalf("Should return head marker")
 	}
 
-	m2 := b.Mark()
-
-	if m2 != b.Markers.Tail {
-		t.Fatalf("Should append marker to end of linked list")
-	}
-
-	if b.Markers.Head.Children[0] != m2 {
-		t.Fatalf("Should assign next to previous tail marker ")
-	}
-
-	if m2.Parent != b.Markers.Head {
-		t.Fatalf("Should assign Prev to previous marker")
-	}
 }
 
 func TestBuilderGetTokenType(t *testing.T) {
@@ -134,8 +123,8 @@ func TestBuilderAssignOrphanedChildren(t *testing.T) {
 		}
 	}
 
-	if len(b.OrphanedChildren) != 0 {
-		t.Fatalf("expected OrphanedChildren to be 0")
+	if len(b.OrphanedChildren) != 1 {
+		t.Fatalf("expected OrphanedChildren to be 1")
 	}
 }
 

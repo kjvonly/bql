@@ -129,14 +129,15 @@ type Parser struct {
 }
 
 func (p *Parser) ParseOrClause(b *Builder) bool {
-	marker := b.Mark()
+	var marker *Marker
 	if !p.ParseAndClause(b) {
-		marker.Drop()
 		return false
 	}
 
 	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
-		marker.Precede(b)
+		if marker == nil {
+			marker = NewMarker()
+		}
 
 		if !p.ParseAndClause(b) {
 			// b.Errors probably need to panic or terminate parse
@@ -144,14 +145,12 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 		}
 	}
 
-	if len(marker.Children) > 0 {
+	if marker != nil {
+		b.AssignOrphanedChildren(marker)
 		marker.Done(state.OR_CLAUSE)
-	} else {
-		marker.Drop()
 	}
 
 	return true
-
 }
 
 func (p *Parser) ParseAndClause(b *Builder) bool {
@@ -173,8 +172,8 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 	}
 
 	if marker != nil {
-		marker.Done(state.AND_CLAUSE)
 		b.AssignOrphanedChildren(marker)
+		marker.Done(state.AND_CLAUSE)
 	}
 
 	return true
@@ -194,8 +193,8 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	}
 
 	if marker != nil {
-		marker.Done(state.SIMPLE_CLAUSE)
 		b.AssignOrphanedChildren(marker)
+		marker.Done(state.SIMPLE_CLAUSE)
 	}
 
 	return true
