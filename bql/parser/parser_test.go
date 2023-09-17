@@ -152,6 +152,21 @@ func TestParseValidFieldName(t *testing.T) {
 	}
 }
 
+func TestParseOrClauseShouldNotSucceed(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("book"))
+
+	success := p.ParseOrClause(b)
+
+	if success {
+		t.Fatalf("expected not to succeed")
+	}
+
+	if !b.Markers.Head.IsDropped {
+		t.Fatalf("expected marker to have been dropped")
+	}
+}
+
 func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book"))

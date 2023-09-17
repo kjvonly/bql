@@ -118,6 +118,15 @@ func (b *Builder) Error(err string) {
 type Parser struct {
 }
 
+func (p *Parser) ParseOrClause(b *Builder) bool {
+	marker := b.Mark()
+	if !p.ParseAndClause(b) {
+		marker.Drop()
+		return false
+	}
+	return false
+}
+
 func (p *Parser) ParseAndClause(b *Builder) bool {
 	marker := b.Mark()
 	if !p.ParseTerminalClause(b) {
