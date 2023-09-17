@@ -152,6 +152,7 @@ func (p *Parser) ParseTerminalClause(b *Builder) bool {
 	}
 
 	if p.AdvanceIfMatches(b, state.SIMPLE_OPERATORS) {
+		marker.Precede(b)
 		p.ParseOperand(b)
 	}
 	marker.Done(state.SIMPLE_CLAUSE)

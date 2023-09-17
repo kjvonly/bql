@@ -143,7 +143,7 @@ func Test_EXAMPLE_GO(t *testing.T) {
 			fmt.Println(tokNames[tt], v)
 		}
 	}
-	t.Fail()
+	// t.Fail()
 	// Output:
 	// ident     "book"
 	// raw char  '='
