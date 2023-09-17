@@ -297,18 +297,17 @@ func flattenMarkers(m *parser.Marker) []*parser.Marker {
 func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
+	queryMarker := b.Mark() // Query marker
 	b.AdvanceLexer()
 	success := p.ParseTerminalClause(b)
+	b.AssignOrphanedChildren(queryMarker)
+	queryMarker.Done(state.QUERY)
 
 	if !success {
-		t.Fatalf("expected false")
+		t.Fatalf("expected true")
 	}
 
-	if b.Markers.Head.Type != state.SIMPLE_CLAUSE {
-		t.Fatalf("expected simple clause but was %s", b.Markers.Tail.Type)
-	}
-
-	expectedElementTypeOrdered := []state.ElementType{state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
+	expectedElementTypeOrdered := []state.ElementType{state.QUERY, state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
 
 	ma := flattenMarkers(b.Markers.Head)
 	for i := 0; i < len(expectedElementTypeOrdered); i++ {

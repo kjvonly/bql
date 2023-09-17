@@ -101,10 +101,8 @@ func (b *Builder) AssignOrphanedChildren(m *Marker) {
 	for _, c := range m.Children {
 		c.Parent = m
 	}
-	m.Parent = b.Markers.Tail
-	b.Markers.Tail = m
 	b.OrphanedChildren = b.OrphanedChildren[:0]
-
+	b.OrphanedChildren = append(b.OrphanedChildren, m)
 }
 
 func (b *Builder) GetTokenType() state.ElementType {
