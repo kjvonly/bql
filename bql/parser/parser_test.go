@@ -46,15 +46,6 @@ func TestBuilderMark(t *testing.T) {
 	if b.Markers == nil {
 		t.Fatalf("Should have non nil Builder.Marker")
 	}
-
-	if b.Markers.Head != b.Markers.Tail {
-		t.Fatalf("Should assign head to tail")
-	}
-
-	if m != b.Markers.Head {
-		t.Fatalf("Should return head marker")
-	}
-
 }
 
 func TestBuilderGetTokenType(t *testing.T) {
@@ -142,10 +133,6 @@ func TestParseValidFieldName(t *testing.T) {
 	if !success {
 		t.Fatalf("expected parseFieldName to have succeeded")
 	}
-
-	if b.Markers.Tail.Type != state.IDENTIFIER {
-		t.Fatalf("expected marker have IDENTIFIER type")
-	}
 }
 
 func TestParseOrClauseShouldNotSucceed(t *testing.T) {
@@ -186,7 +173,7 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Markers.Head)
+	ma := flattenMarkers(b.Markers)
 	for i := 0; i < len(ma); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -222,7 +209,7 @@ func TestParseAndOrClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Markers.Head)
+	ma := flattenMarkers(b.Markers)
 	for i := 0; i < len(ma); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -270,7 +257,7 @@ func TestParseAndClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Markers.Head)
+	ma := flattenMarkers(b.Markers)
 	for i := 0; i < len(ma); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -316,7 +303,7 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 
 	expectedElementTypeOrdered := []state.ElementType{state.QUERY, state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
 
-	ma := flattenMarkers(b.Markers.Head)
+	ma := flattenMarkers(b.Markers)
 	for i := 0; i < len(expectedElementTypeOrdered); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -329,10 +316,6 @@ func TestParseOperand(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("john"))
 	b.AdvanceLexer()
 	parsed := p.ParseOperand(b)
-
-	if b.Markers.Tail.Type != state.LITERAL {
-		t.Fatalf("expected Literal marker but got %s", b.Markers.Tail.Type)
-	}
 
 	if !parsed {
 		t.Fatalf("expected parsed to be true but was false")

@@ -50,7 +50,7 @@ func (m *Expression) Done(t state.ElementType) {
 }
 
 type Builder struct {
-	Markers          *MarkerList
+	Markers          *Expression
 	Lexer            *lex.Lexer
 	CurrentToken     Token
 	OrphanedChildren []*Expression
@@ -59,16 +59,16 @@ type Builder struct {
 func NewBuilder(lex *lex.Lexer) *Builder {
 	return &Builder{
 		Lexer:   lex,
-		Markers: NewMarkerList(),
+		Markers: &Expression{},
 	}
 }
 
 // Mark adds a placeholder for new
 func (b *Builder) Mark() *Expression {
-	if b.Markers.Head == nil {
-		b.Markers.Head = NewExpression()
-		b.Markers.Tail = b.Markers.Head
-		return b.Markers.Head
+	if b.Markers == nil {
+		b.Markers = &Expression{}
+
+		return b.Markers
 	}
 
 	m := &Expression{}
