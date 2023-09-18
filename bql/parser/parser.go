@@ -49,18 +49,6 @@ func (m *Expression) Done(t state.ElementType) {
 	m.Type = t
 }
 
-// Creates and returns a new marker starting immediately before the start of
-// this marker and extending after its end. Can be called on a completed or
-// a currently active marker.
-//
-// @return the new marker instance.
-func (m *Expression) Precede(b *Builder) {
-	b.Markers.Tail = m
-}
-
-type Build interface {
-}
-
 type Builder struct {
 	Markers          *MarkerList
 	Lexer            *lex.Lexer

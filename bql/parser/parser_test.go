@@ -33,16 +33,6 @@ func TestDoneFailure(t *testing.T) {
 	m1.Done(state.IDENTIFIER)
 }
 
-func TestMarkerPrecede(t *testing.T) {
-	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	m1 := b.Mark()
-	m1.Precede(b)
-
-	if b.Markers.Tail != m1 {
-		t.Fatalf("expected new tail to be preceded marker but was %+v", b.Markers.Tail)
-	}
-}
-
 // ///////////////////////////////////
 // /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
