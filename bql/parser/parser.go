@@ -10,8 +10,8 @@ type Token struct {
 	Value interface{}
 }
 
-// NewMarker creates root Marker
-func NewMarker() *Expression {
+// NewExpression creates root Marker
+func NewExpression() *Expression {
 	return &Expression{}
 }
 
@@ -32,19 +32,19 @@ type Expression struct {
 	Value    interface{}
 }
 
-func checkAllMarkersDoneOrDropped(n []*Expression) {
+func checkAllExpressionsDone(n []*Expression) {
 	for i := 0; i < len(n); i++ {
 		if !n[i].IsDone {
 			//TODO should change panic to something else
 			panic("all markers past this marker not done.")
 		}
 
-		checkAllMarkersDoneOrDropped(n[i].Children)
+		checkAllExpressionsDone(n[i].Children)
 	}
 }
 
 func (m *Expression) Done(t state.ElementType) {
-	checkAllMarkersDoneOrDropped(m.Children)
+	checkAllExpressionsDone(m.Children)
 	m.IsDone = true
 	m.Type = t
 }
@@ -78,7 +78,7 @@ func NewBuilder(lex *lex.Lexer) *Builder {
 // Mark adds a placeholder for new
 func (b *Builder) Mark() *Expression {
 	if b.Markers.Head == nil {
-		b.Markers.Head = NewMarker()
+		b.Markers.Head = NewExpression()
 		b.Markers.Tail = b.Markers.Head
 		return b.Markers.Head
 	}
@@ -133,7 +133,7 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 
 	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
 		if marker == nil {
-			marker = NewMarker()
+			marker = NewExpression()
 			marker.Value = "OR"
 			b.AssignOrphanedChildren(marker)
 		}
@@ -162,7 +162,7 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
 		if marker == nil {
-			marker = NewMarker()
+			marker = NewExpression()
 			marker.Value = "AND"
 			b.AssignOrphanedChildren(marker)
 		}
