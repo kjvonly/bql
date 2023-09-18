@@ -43,7 +43,7 @@ func TestBuilderMark(t *testing.T) {
 		t.Fatalf("Should have nil Next and Prev")
 	}
 
-	if b.Markers == nil {
+	if b.Expression == nil {
 		t.Fatalf("Should have non nil Builder.Marker")
 	}
 }
@@ -150,10 +150,9 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book = john or book = mark or book = matthew"))
 	b.AdvanceLexer()
-	queryMarker := b.Mark() // Query Marker needed for testing
 	success := p.ParseOrClause(b)
-	queryMarker.Done(state.QUERY)
-	b.AssignOrphanedChildren(queryMarker)
+	b.Expression.Done(state.QUERY)
+	b.AssignOrphanedChildren(b.Expression)
 
 	if !success {
 		t.Fatalf("expected to succeed")
@@ -173,7 +172,7 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Markers)
+	ma := flattenMarkers(b.Expression)
 	for i := 0; i < len(ma); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -185,10 +184,9 @@ func TestParseAndOrClauseShouldSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book = john or book = mark and book = matthew"))
 	b.AdvanceLexer()
-	queryMarker := b.Mark() // Query Marker needed for testing
 	success := p.ParseOrClause(b)
-	queryMarker.Done(state.QUERY)
-	b.AssignOrphanedChildren(queryMarker)
+	b.Expression.Done(state.QUERY)
+	b.AssignOrphanedChildren(b.Expression)
 
 	if !success {
 		t.Fatalf("expected to succeed")
@@ -209,7 +207,7 @@ func TestParseAndOrClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Markers)
+	ma := flattenMarkers(b.Expression)
 	for i := 0; i < len(ma); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -221,9 +219,9 @@ func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book"))
 
-	queryMarker := b.Mark()
 	success := p.ParseAndClause(b)
-	queryMarker.Done(state.QUERY)
+	b.Expression.Done(state.QUERY)
+	b.AssignOrphanedChildren(b.Expression)
 
 	if success {
 		t.Fatalf("expected not to succeed")
@@ -235,9 +233,9 @@ func TestParseAndClauseShouldSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book = john and book = mark and book = matthew"))
 	b.AdvanceLexer()
-	queryMarker := b.Mark() // Query Marker needed for testing
 	success := p.ParseAndClause(b)
-	queryMarker.Done(state.QUERY)
+	b.Expression.Done(state.QUERY)
+	b.AssignOrphanedChildren(b.Expression)
 
 	if !success {
 		t.Fatalf("expected to succeed")
@@ -257,7 +255,7 @@ func TestParseAndClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Markers)
+	ma := flattenMarkers(b.Expression)
 	for i := 0; i < len(ma); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
@@ -291,11 +289,10 @@ func flattenMarkers(m *parser.Expression) []*parser.Expression {
 func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	queryMarker := b.Mark() // Query marker
 	b.AdvanceLexer()
 	success := p.ParseTerminalClause(b)
-	b.AssignOrphanedChildren(queryMarker)
-	queryMarker.Done(state.QUERY)
+	b.Expression.Done(state.QUERY)
+	b.AssignOrphanedChildren(b.Expression)
 
 	if !success {
 		t.Fatalf("expected true")
@@ -303,7 +300,7 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 
 	expectedElementTypeOrdered := []state.ElementType{state.QUERY, state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
 
-	ma := flattenMarkers(b.Markers)
+	ma := flattenMarkers(b.Expression)
 	for i := 0; i < len(expectedElementTypeOrdered); i++ {
 		if expectedElementTypeOrdered[i] != ma[i].Type {
 			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
