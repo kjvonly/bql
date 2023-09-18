@@ -113,8 +113,8 @@ func TestBuilderAssignOrphanedChildren(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("="))
 	b.Mark()
 
-	b.OrphanedChildren = append(b.OrphanedChildren, []*parser.Marker{{}, {}}...)
-	m := &parser.Marker{}
+	b.OrphanedChildren = append(b.OrphanedChildren, []*parser.Expression{{}, {}}...)
+	m := &parser.Expression{}
 	b.AssignOrphanedChildren(m)
 
 	for _, c := range m.Children {
@@ -299,9 +299,9 @@ func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
 	}
 }
 
-func flattenMarkers(m *parser.Marker) []*parser.Marker {
+func flattenMarkers(m *parser.Expression) []*parser.Expression {
 
-	ma := []*parser.Marker{}
+	ma := []*parser.Expression{}
 
 	ma = append(ma, m)
 

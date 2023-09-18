@@ -11,8 +11,8 @@ type Token struct {
 }
 
 // NewMarker creates root Marker
-func NewMarker() *Marker {
-	return &Marker{}
+func NewMarker() *Expression {
+	return &Expression{}
 }
 
 func NewMarkerList() *MarkerList {
@@ -20,19 +20,19 @@ func NewMarkerList() *MarkerList {
 }
 
 type MarkerList struct {
-	Head *Marker
-	Tail *Marker
+	Head *Expression
+	Tail *Expression
 }
 
-type Marker struct {
-	Children []*Marker
-	Parent   *Marker
+type Expression struct {
+	Children []*Expression
+	Parent   *Expression
 	IsDone   bool
 	Type     state.ElementType
 	Value    interface{}
 }
 
-func checkAllMarkersDoneOrDropped(n []*Marker) {
+func checkAllMarkersDoneOrDropped(n []*Expression) {
 	for i := 0; i < len(n); i++ {
 		if !n[i].IsDone {
 			//TODO should change panic to something else
@@ -43,7 +43,7 @@ func checkAllMarkersDoneOrDropped(n []*Marker) {
 	}
 }
 
-func (m *Marker) Done(t state.ElementType) {
+func (m *Expression) Done(t state.ElementType) {
 	checkAllMarkersDoneOrDropped(m.Children)
 	m.IsDone = true
 	m.Type = t
@@ -54,7 +54,7 @@ func (m *Marker) Done(t state.ElementType) {
 // a currently active marker.
 //
 // @return the new marker instance.
-func (m *Marker) Precede(b *Builder) {
+func (m *Expression) Precede(b *Builder) {
 	b.Markers.Tail = m
 }
 
@@ -65,7 +65,7 @@ type Builder struct {
 	Markers          *MarkerList
 	Lexer            *lex.Lexer
 	CurrentToken     Token
-	OrphanedChildren []*Marker
+	OrphanedChildren []*Expression
 }
 
 func NewBuilder(lex *lex.Lexer) *Builder {
@@ -76,14 +76,14 @@ func NewBuilder(lex *lex.Lexer) *Builder {
 }
 
 // Mark adds a placeholder for new
-func (b *Builder) Mark() *Marker {
+func (b *Builder) Mark() *Expression {
 	if b.Markers.Head == nil {
 		b.Markers.Head = NewMarker()
 		b.Markers.Tail = b.Markers.Head
 		return b.Markers.Head
 	}
 
-	m := &Marker{}
+	m := &Expression{}
 	//m.Parent = b.Markers.Tail
 	//b.Markers.Tail.Children = append(b.Markers.Tail.Children, m)
 	//b.Markers.Tail = m
@@ -91,7 +91,7 @@ func (b *Builder) Mark() *Marker {
 	return m
 }
 
-func (b *Builder) AssignOrphanedChildren(m *Marker) {
+func (b *Builder) AssignOrphanedChildren(m *Expression) {
 	m.Children = append(m.Children, b.OrphanedChildren...)
 	for _, c := range m.Children {
 		c.Parent = m
@@ -126,7 +126,7 @@ type Parser struct {
 }
 
 func (p *Parser) ParseOrClause(b *Builder) bool {
-	var marker *Marker
+	var marker *Expression
 	if !p.ParseAndClause(b) {
 		return false
 	}
@@ -155,7 +155,7 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 }
 
 func (p *Parser) ParseAndClause(b *Builder) bool {
-	var marker *Marker
+	var marker *Expression
 	if !p.ParseTerminalClause(b) {
 		return false
 	}
@@ -184,14 +184,14 @@ func (p *Parser) ParseAndClause(b *Builder) bool {
 }
 
 func (p *Parser) ParseTerminalClause(b *Builder) bool {
-	var marker *Marker
+	var marker *Expression
 	if !p.ParseFieldName(b) {
 		return false
 	}
 
 	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.SIMPLE_OPERATORS) {
-		marker = &Marker{}
+		marker = &Expression{}
 		//marker.Precede(b)
 		p.ParseOperand(b)
 	}
@@ -218,7 +218,7 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 }
 
 func (p *Parser) ParseOperand(b *Builder) bool {
-	var marker *Marker
+	var marker *Expression
 	parsed := true
 	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.LITERALS) {
