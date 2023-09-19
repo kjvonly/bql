@@ -9,19 +9,19 @@ import (
 
 func TestDoneSuccess(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	m1 := b.AddExpression()
-	m2 := b.AddExpression()
+	e1 := b.AddExpression()
+	e2 := b.AddExpression()
 
-	m2.Done(state.EQ)
-	m1.Done(state.IDENTIFIER)
+	e2.Done(state.EQ)
+	e1.Done(state.IDENTIFIER)
 }
 
 func TestDoneFailure(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	m1 := b.AddExpression()
+	e1 := b.AddExpression()
 
-	m2 := b.AddExpression()
-	m1.Expressions = append(m1.Expressions, m2)
+	e2 := b.AddExpression()
+	e1.Expressions = append(e1.Expressions, e2)
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -29,17 +29,17 @@ func TestDoneFailure(t *testing.T) {
 		}
 	}()
 
-	// second mark never called done
-	m1.Done(state.IDENTIFIER)
+	// second expression never called done
+	e1.Done(state.IDENTIFIER)
 }
 
 // ///////////////////////////////////
 // /////////// Builder ///////////////
-func TestBuilderMark(t *testing.T) {
+func TestBuilderAddExpression(t *testing.T) {
 	b := parser.NewBuilder(nil)
-	m := b.AddExpression()
+	e := b.AddExpression()
 
-	if m.Expressions != nil && m.Parent != nil {
+	if e.Expressions != nil && e.Parent != nil {
 		t.Fatalf("Should have nil Next and Prev")
 	}
 
@@ -90,22 +90,22 @@ func TestBuilderError(t *testing.T) {
 	// TODO finish test
 }
 
-func TestBuilderAssignOrphanedChildren(t *testing.T) {
+func TestBuilderAssignOrphanedExpressions(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("="))
 	b.AddExpression()
 
 	b.OrphanedExpressions = append(b.OrphanedExpressions, []*parser.Expression{{}, {}}...)
-	m := &parser.Expression{}
-	b.AssignOrphanedExpressions(m)
+	e := &parser.Expression{}
+	b.AssignOrphanedExpressions(e)
 
-	for _, c := range m.Expressions {
-		if c.Parent != m {
-			t.Fatalf("expected children to have correct parent")
+	for _, c := range e.Expressions {
+		if c.Parent != e {
+			t.Fatalf("expected expressions to have correct parent")
 		}
 	}
 
 	if len(b.OrphanedExpressions) != 0 {
-		t.Fatalf("expected OrphanedChildren to be 0")
+		t.Fatalf("expected OrphanedExpressions to be 0")
 	}
 }
 
@@ -116,9 +116,6 @@ func TestParseInvalidFieldName(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("="))
 	b.AdvanceLexer()
 	success := p.ParseFieldName(b)
-	// if !b.Markers.Head.IsDropped {
-	// 	t.Fatalf("expected mark to have been dropped")
-	// }
 	if success {
 		t.Fatalf("expected parseFieldName to have failed")
 	}
@@ -158,7 +155,7 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 		t.Fatalf("expected to succeed")
 	}
 
-	expectedElementTypeOrdered := []state.ElementType{
+	expectedExpressionTypeOrdered := []state.ElementType{
 		state.QUERY,
 		state.OR_CLAUSE,
 		state.SIMPLE_CLAUSE,
@@ -172,10 +169,10 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Expression)
-	for i := 0; i < len(ma); i++ {
-		if expectedElementTypeOrdered[i] != ma[i].Type {
-			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
+	es := flattenExpressions(b.Expression)
+	for i := 0; i < len(es); i++ {
+		if expectedExpressionTypeOrdered[i] != es[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedExpressionTypeOrdered[i], es[i].Type)
 		}
 	}
 }
@@ -192,7 +189,7 @@ func TestParseAndOrClauseShouldSucceed(t *testing.T) {
 		t.Fatalf("expected to succeed")
 	}
 
-	expectedElementTypeOrdered := []state.ElementType{
+	expectedExpressionTypeOrdered := []state.ElementType{
 		state.QUERY,
 		state.OR_CLAUSE,
 		state.SIMPLE_CLAUSE,
@@ -207,10 +204,10 @@ func TestParseAndOrClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Expression)
-	for i := 0; i < len(ma); i++ {
-		if expectedElementTypeOrdered[i] != ma[i].Type {
-			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
+	es := flattenExpressions(b.Expression)
+	for i := 0; i < len(es); i++ {
+		if expectedExpressionTypeOrdered[i] != es[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedExpressionTypeOrdered[i], es[i].Type)
 		}
 	}
 }
@@ -241,7 +238,7 @@ func TestParseAndClauseShouldSucceed(t *testing.T) {
 		t.Fatalf("expected to succeed")
 	}
 
-	expectedElementTypeOrdered := []state.ElementType{
+	expectedExpressionTypeOrdered := []state.ElementType{
 		state.QUERY,
 		state.AND_CLAUSE,
 		state.SIMPLE_CLAUSE,
@@ -255,10 +252,10 @@ func TestParseAndClauseShouldSucceed(t *testing.T) {
 		state.LITERAL,
 	}
 
-	ma := flattenMarkers(b.Expression)
-	for i := 0; i < len(ma); i++ {
-		if expectedElementTypeOrdered[i] != ma[i].Type {
-			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
+	es := flattenExpressions(b.Expression)
+	for i := 0; i < len(es); i++ {
+		if expectedExpressionTypeOrdered[i] != es[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedExpressionTypeOrdered[i], es[i].Type)
 		}
 	}
 }
@@ -274,14 +271,14 @@ func TestParseTerminalClauseNotProperFieldName(t *testing.T) {
 	}
 }
 
-func flattenMarkers(m *parser.Expression) []*parser.Expression {
+func flattenExpressions(m *parser.Expression) []*parser.Expression {
 
 	ma := []*parser.Expression{}
 
 	ma = append(ma, m)
 
 	for i := 0; i < len(m.Expressions); i++ {
-		ma = append(ma, flattenMarkers(m.Expressions[i])...)
+		ma = append(ma, flattenExpressions(m.Expressions[i])...)
 	}
 	return ma
 }
@@ -298,12 +295,12 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 		t.Fatalf("expected true")
 	}
 
-	expectedElementTypeOrdered := []state.ElementType{state.QUERY, state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
+	expectedExpressionTypeOrdered := []state.ElementType{state.QUERY, state.SIMPLE_CLAUSE, state.IDENTIFIER, state.LITERAL}
 
-	ma := flattenMarkers(b.Expression)
-	for i := 0; i < len(expectedElementTypeOrdered); i++ {
-		if expectedElementTypeOrdered[i] != ma[i].Type {
-			t.Fatalf("expected type %s but got %s", expectedElementTypeOrdered[i], ma[i].Type)
+	es := flattenExpressions(b.Expression)
+	for i := 0; i < len(expectedExpressionTypeOrdered); i++ {
+		if expectedExpressionTypeOrdered[i] != es[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedExpressionTypeOrdered[i], es[i].Type)
 		}
 	}
 }
