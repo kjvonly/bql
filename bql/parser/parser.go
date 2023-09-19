@@ -25,11 +25,11 @@ type MarkerList struct {
 }
 
 type Expression struct {
-	Children []*Expression
-	Parent   *Expression
-	IsDone   bool
-	Type     state.ElementType
-	Value    interface{}
+	Expressions []*Expression
+	Parent      *Expression
+	IsDone      bool
+	Type        state.ElementType
+	Value       interface{}
 }
 
 func checkAllExpressionsDone(n []*Expression) {
@@ -39,21 +39,21 @@ func checkAllExpressionsDone(n []*Expression) {
 			panic("all markers past this marker not done.")
 		}
 
-		checkAllExpressionsDone(n[i].Children)
+		checkAllExpressionsDone(n[i].Expressions)
 	}
 }
 
-func (m *Expression) Done(t state.ElementType) {
-	checkAllExpressionsDone(m.Children)
-	m.IsDone = true
-	m.Type = t
+func (e *Expression) Done(t state.ElementType) {
+	checkAllExpressionsDone(e.Expressions)
+	e.IsDone = true
+	e.Type = t
 }
 
 type Builder struct {
-	Expression       *Expression
-	Lexer            *lex.Lexer
-	CurrentToken     Token
-	OrphanedChildren []*Expression
+	Expression          *Expression
+	Lexer               *lex.Lexer
+	CurrentToken        Token
+	OrphanedExpressions []*Expression
 }
 
 func NewBuilder(lex *lex.Lexer) *Builder {
@@ -63,21 +63,20 @@ func NewBuilder(lex *lex.Lexer) *Builder {
 	}
 }
 
-// Mark adds a placeholder for new
-func (b *Builder) Mark() *Expression {
-	m := &Expression{}
-	b.OrphanedChildren = append(b.OrphanedChildren, m)
-	return m
+func (b *Builder) AddExpression() *Expression {
+	e := &Expression{}
+	b.OrphanedExpressions = append(b.OrphanedExpressions, e)
+	return e
 }
 
 func (b *Builder) AssignOrphanedChildren(m *Expression) {
-	m.Children = append(m.Children, b.OrphanedChildren...)
-	for _, c := range m.Children {
+	m.Expressions = append(m.Expressions, b.OrphanedExpressions...)
+	for _, c := range m.Expressions {
 		c.Parent = m
 	}
-	b.OrphanedChildren = b.OrphanedChildren[:0]
+	b.OrphanedExpressions = b.OrphanedExpressions[:0]
 	if m.IsDone {
-		b.OrphanedChildren = append(b.OrphanedChildren, m)
+		b.OrphanedExpressions = append(b.OrphanedExpressions, m)
 	}
 }
 
@@ -190,7 +189,7 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 		b.Error("expected field name")
 		return false
 	}
-	marker := b.Mark()
+	marker := b.AddExpression()
 	marker.Value = ct.Value
 	marker.Done(state.IDENTIFIER)
 	return true
@@ -201,7 +200,7 @@ func (p *Parser) ParseOperand(b *Builder) bool {
 	parsed := true
 	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.LITERALS) {
-		marker = b.Mark()
+		marker = b.AddExpression()
 		marker.Value = ct.Value
 		marker.Done(state.LITERAL)
 	} else {

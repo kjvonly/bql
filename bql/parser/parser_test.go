@@ -9,8 +9,8 @@ import (
 
 func TestDoneSuccess(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	m1 := b.Mark()
-	m2 := b.Mark()
+	m1 := b.AddExpression()
+	m2 := b.AddExpression()
 
 	m2.Done(state.EQ)
 	m1.Done(state.IDENTIFIER)
@@ -18,10 +18,10 @@ func TestDoneSuccess(t *testing.T) {
 
 func TestDoneFailure(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("book = john"))
-	m1 := b.Mark()
+	m1 := b.AddExpression()
 
-	m2 := b.Mark()
-	m1.Children = append(m1.Children, m2)
+	m2 := b.AddExpression()
+	m1.Expressions = append(m1.Expressions, m2)
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -37,9 +37,9 @@ func TestDoneFailure(t *testing.T) {
 // /////////// Builder ///////////////
 func TestBuilderMark(t *testing.T) {
 	b := parser.NewBuilder(nil)
-	m := b.Mark()
+	m := b.AddExpression()
 
-	if m.Children != nil && m.Parent != nil {
+	if m.Expressions != nil && m.Parent != nil {
 		t.Fatalf("Should have nil Next and Prev")
 	}
 
@@ -92,19 +92,19 @@ func TestBuilderError(t *testing.T) {
 
 func TestBuilderAssignOrphanedChildren(t *testing.T) {
 	b := parser.NewBuilder(state.BQLLexer("="))
-	b.Mark()
+	b.AddExpression()
 
-	b.OrphanedChildren = append(b.OrphanedChildren, []*parser.Expression{{}, {}}...)
+	b.OrphanedExpressions = append(b.OrphanedExpressions, []*parser.Expression{{}, {}}...)
 	m := &parser.Expression{}
 	b.AssignOrphanedChildren(m)
 
-	for _, c := range m.Children {
+	for _, c := range m.Expressions {
 		if c.Parent != m {
 			t.Fatalf("expected children to have correct parent")
 		}
 	}
 
-	if len(b.OrphanedChildren) != 0 {
+	if len(b.OrphanedExpressions) != 0 {
 		t.Fatalf("expected OrphanedChildren to be 0")
 	}
 }
@@ -280,8 +280,8 @@ func flattenMarkers(m *parser.Expression) []*parser.Expression {
 
 	ma = append(ma, m)
 
-	for i := 0; i < len(m.Children); i++ {
-		ma = append(ma, flattenMarkers(m.Children[i])...)
+	for i := 0; i < len(m.Expressions); i++ {
+		ma = append(ma, flattenMarkers(m.Expressions[i])...)
 	}
 	return ma
 }
