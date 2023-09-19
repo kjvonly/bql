@@ -10,20 +10,6 @@ type Token struct {
 	Value interface{}
 }
 
-// NewExpression creates root Marker
-func NewExpression() *Expression {
-	return &Expression{}
-}
-
-func NewMarkerList() *MarkerList {
-	return &MarkerList{}
-}
-
-type MarkerList struct {
-	Head *Expression
-	Tail *Expression
-}
-
 type Expression struct {
 	Expressions []*Expression
 	Parent      *Expression
@@ -32,14 +18,14 @@ type Expression struct {
 	Value       interface{}
 }
 
-func checkAllExpressionsDone(n []*Expression) {
-	for i := 0; i < len(n); i++ {
-		if !n[i].IsDone {
+func checkAllExpressionsDone(es []*Expression) {
+	for i := 0; i < len(es); i++ {
+		if !es[i].IsDone {
 			//TODO should change panic to something else
 			panic("all markers past this marker not done.")
 		}
 
-		checkAllExpressionsDone(n[i].Expressions)
+		checkAllExpressionsDone(es[i].Expressions)
 	}
 }
 
@@ -69,14 +55,14 @@ func (b *Builder) AddExpression() *Expression {
 	return e
 }
 
-func (b *Builder) AssignOrphanedChildren(m *Expression) {
-	m.Expressions = append(m.Expressions, b.OrphanedExpressions...)
-	for _, c := range m.Expressions {
-		c.Parent = m
+func (b *Builder) AssignOrphanedExpressions(e *Expression) {
+	e.Expressions = append(e.Expressions, b.OrphanedExpressions...)
+	for _, c := range e.Expressions {
+		c.Parent = e
 	}
 	b.OrphanedExpressions = b.OrphanedExpressions[:0]
-	if m.IsDone {
-		b.OrphanedExpressions = append(b.OrphanedExpressions, m)
+	if e.IsDone {
+		b.OrphanedExpressions = append(b.OrphanedExpressions, e)
 	}
 }
 
@@ -100,20 +86,19 @@ func (b *Builder) Error(err string) {
 	// TODO implement
 }
 
-type Parser struct {
-}
+type Parser struct{}
 
 func (p *Parser) ParseOrClause(b *Builder) bool {
-	var marker *Expression
+	var e *Expression
 	if !p.ParseAndClause(b) {
 		return false
 	}
 
 	for p.AdvanceIfMatches(b, state.OR_OPERATORS) {
-		if marker == nil {
-			marker = NewExpression()
-			marker.Value = "OR"
-			b.AssignOrphanedChildren(marker)
+		if e == nil {
+			e = &Expression{}
+			e.Value = "OR"
+			b.AssignOrphanedExpressions(e)
 		}
 
 		if !p.ParseAndClause(b) {
@@ -121,63 +106,62 @@ func (p *Parser) ParseOrClause(b *Builder) bool {
 			b.Error("expected clause after OR keyword")
 		}
 
-		b.AssignOrphanedChildren(marker)
+		b.AssignOrphanedExpressions(e)
 	}
 
-	if marker != nil {
-		marker.Done(state.OR_CLAUSE)
-		b.AssignOrphanedChildren(marker)
+	if e != nil {
+		e.Done(state.OR_CLAUSE)
+		b.AssignOrphanedExpressions(e)
 	}
 
 	return true
 }
 
 func (p *Parser) ParseAndClause(b *Builder) bool {
-	var marker *Expression
+	var e *Expression
 	if !p.ParseTerminalClause(b) {
 		return false
 	}
 
 	for p.AdvanceIfMatches(b, state.AND_OPERATORS) {
-		if marker == nil {
-			marker = NewExpression()
-			marker.Value = "AND"
-			b.AssignOrphanedChildren(marker)
+		if e == nil {
+			e = &Expression{}
+			e.Value = "AND"
+			b.AssignOrphanedExpressions(e)
 		}
 
 		if !p.ParseTerminalClause(b) {
-			// b.Errors probably need to panic or terminate parse
+			// TODO b.Errors probably need to panic or terminate parse
 			b.Error("expected clause after AND keyword")
 			return false
 		}
-		b.AssignOrphanedChildren(marker)
+		b.AssignOrphanedExpressions(e)
 	}
 
-	if marker != nil {
-		marker.Done(state.AND_CLAUSE)
-		b.AssignOrphanedChildren(marker)
+	if e != nil {
+		e.Done(state.AND_CLAUSE)
+		b.AssignOrphanedExpressions(e)
 	}
 
 	return true
 }
 
 func (p *Parser) ParseTerminalClause(b *Builder) bool {
-	var marker *Expression
+	var e *Expression
 	if !p.ParseFieldName(b) {
 		return false
 	}
 
 	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.SIMPLE_OPERATORS) {
-		marker = &Expression{}
-		//marker.Precede(b)
+		e = &Expression{}
 		p.ParseOperand(b)
 	}
 
-	if marker != nil {
-		marker.Value = ct.Value
-		marker.Done(state.SIMPLE_CLAUSE)
-		b.AssignOrphanedChildren(marker)
+	if e != nil {
+		e.Value = ct.Value
+		e.Done(state.SIMPLE_CLAUSE)
+		b.AssignOrphanedExpressions(e)
 	}
 
 	return true
@@ -189,22 +173,21 @@ func (p *Parser) ParseFieldName(b *Builder) bool {
 		b.Error("expected field name")
 		return false
 	}
-	marker := b.AddExpression()
-	marker.Value = ct.Value
-	marker.Done(state.IDENTIFIER)
+	e := b.AddExpression()
+	e.Value = ct.Value
+	e.Done(state.IDENTIFIER)
 	return true
 }
 
 func (p *Parser) ParseOperand(b *Builder) bool {
-	var marker *Expression
+	var e *Expression
 	parsed := true
 	ct := b.CurrentToken
 	if p.AdvanceIfMatches(b, state.LITERALS) {
-		marker = b.AddExpression()
-		marker.Value = ct.Value
-		marker.Done(state.LITERAL)
+		e = b.AddExpression()
+		e.Value = ct.Value
+		e.Done(state.LITERAL)
 	} else {
-		//	marker.Drop()
 		parsed = false
 	}
 	if !parsed {

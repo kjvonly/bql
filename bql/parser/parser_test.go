@@ -96,7 +96,7 @@ func TestBuilderAssignOrphanedChildren(t *testing.T) {
 
 	b.OrphanedExpressions = append(b.OrphanedExpressions, []*parser.Expression{{}, {}}...)
 	m := &parser.Expression{}
-	b.AssignOrphanedChildren(m)
+	b.AssignOrphanedExpressions(m)
 
 	for _, c := range m.Expressions {
 		if c.Parent != m {
@@ -152,7 +152,7 @@ func TestParseOrClauseShouldSucceed(t *testing.T) {
 	b.AdvanceLexer()
 	success := p.ParseOrClause(b)
 	b.Expression.Done(state.QUERY)
-	b.AssignOrphanedChildren(b.Expression)
+	b.AssignOrphanedExpressions(b.Expression)
 
 	if !success {
 		t.Fatalf("expected to succeed")
@@ -186,7 +186,7 @@ func TestParseAndOrClauseShouldSucceed(t *testing.T) {
 	b.AdvanceLexer()
 	success := p.ParseOrClause(b)
 	b.Expression.Done(state.QUERY)
-	b.AssignOrphanedChildren(b.Expression)
+	b.AssignOrphanedExpressions(b.Expression)
 
 	if !success {
 		t.Fatalf("expected to succeed")
@@ -221,7 +221,7 @@ func TestParseAndClauseShouldNotSucceed(t *testing.T) {
 
 	success := p.ParseAndClause(b)
 	b.Expression.Done(state.QUERY)
-	b.AssignOrphanedChildren(b.Expression)
+	b.AssignOrphanedExpressions(b.Expression)
 
 	if success {
 		t.Fatalf("expected not to succeed")
@@ -235,7 +235,7 @@ func TestParseAndClauseShouldSucceed(t *testing.T) {
 	b.AdvanceLexer()
 	success := p.ParseAndClause(b)
 	b.Expression.Done(state.QUERY)
-	b.AssignOrphanedChildren(b.Expression)
+	b.AssignOrphanedExpressions(b.Expression)
 
 	if !success {
 		t.Fatalf("expected to succeed")
@@ -292,7 +292,7 @@ func TestParseTerminalClauseProperFieldName(t *testing.T) {
 	b.AdvanceLexer()
 	success := p.ParseTerminalClause(b)
 	b.Expression.Done(state.QUERY)
-	b.AssignOrphanedChildren(b.Expression)
+	b.AssignOrphanedExpressions(b.Expression)
 
 	if !success {
 		t.Fatalf("expected true")
