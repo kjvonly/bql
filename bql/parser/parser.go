@@ -11,6 +11,13 @@ type Token struct {
 
 type Parser struct{}
 
+func (p *Parser) ParseQuery(b *Builder) bool {
+	p.ParseOrClause(b)
+	b.AssignOrphanedExpressions(b.Expression)
+	b.Expression.Done(state.QUERY)
+	return true
+}
+
 func (p *Parser) ParseOrClause(b *Builder) bool {
 	var e *Expression
 	if !p.ParseAndClause(b) {

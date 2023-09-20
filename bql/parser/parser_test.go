@@ -51,6 +51,39 @@ func flattenExpressions(m *parser.Expression) []*parser.Expression {
 	return ma
 }
 
+func TestParseQueryShouldSucceed(t *testing.T) {
+	p := parser.Parser{}
+	b := parser.NewBuilder(state.BQLLexer("book = john and book = mark or book = matthew"))
+	b.AdvanceLexer()
+	success := p.ParseQuery(b)
+
+	if !success {
+		t.Fatalf("expected to succeed")
+	}
+
+	expectedExpressionTypeOrdered := []state.ElementType{
+		state.QUERY,
+		state.OR_CLAUSE,
+		state.AND_CLAUSE,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+		state.SIMPLE_CLAUSE,
+		state.IDENTIFIER,
+		state.LITERAL,
+	}
+
+	es := flattenExpressions(b.Expression)
+	for i := 0; i < len(es); i++ {
+		if expectedExpressionTypeOrdered[i] != es[i].Type {
+			t.Fatalf("expected type %s but got %s", expectedExpressionTypeOrdered[i], es[i].Type)
+		}
+	}
+}
+
 func TestParseOrClauseShouldSucceed(t *testing.T) {
 	p := parser.Parser{}
 	b := parser.NewBuilder(state.BQLLexer("book = john or book = mark or book = matthew"))
