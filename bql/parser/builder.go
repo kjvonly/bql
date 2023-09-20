@@ -27,9 +27,6 @@ func (b *Builder) AddExpression() *Expression {
 
 func (b *Builder) AssignOrphanedExpressions(e *Expression) {
 	e.Expressions = append(e.Expressions, b.OrphanedExpressions...)
-	for _, c := range e.Expressions {
-		c.Parent = e
-	}
 	b.OrphanedExpressions = b.OrphanedExpressions[:0]
 	if e.IsDone {
 		b.OrphanedExpressions = append(b.OrphanedExpressions, e)

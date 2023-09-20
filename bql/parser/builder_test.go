@@ -11,8 +11,8 @@ func TestBuilderAddExpression(t *testing.T) {
 	b := parser.NewBuilder(nil)
 	e := b.AddExpression()
 
-	if e.Expressions != nil && e.Parent != nil {
-		t.Fatalf("Should have nil Next and Prev")
+	if e.Expressions != nil {
+		t.Fatalf("Should have nil Next")
 	}
 
 	if b.Expression == nil {
@@ -69,12 +69,6 @@ func TestBuilderAssignOrphanedExpressions(t *testing.T) {
 	b.OrphanedExpressions = append(b.OrphanedExpressions, []*parser.Expression{{}, {}}...)
 	e := &parser.Expression{}
 	b.AssignOrphanedExpressions(e)
-
-	for _, c := range e.Expressions {
-		if c.Parent != e {
-			t.Fatalf("expected expressions to have correct parent")
-		}
-	}
 
 	if len(b.OrphanedExpressions) != 0 {
 		t.Fatalf("expected OrphanedExpressions to be 0")

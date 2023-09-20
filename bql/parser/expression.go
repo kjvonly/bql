@@ -4,7 +4,6 @@ import "launchpad.net/kjvonly-bql/bql/state"
 
 type Expression struct {
 	Expressions []*Expression
-	Parent      *Expression
 	IsDone      bool
 	Type        state.ElementType
 	Value       interface{}
