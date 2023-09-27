@@ -6,8 +6,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"git.launchpad.net/kjvonly-bql/lex"
 	"golang.org/x/text/width"
+	"launchpad.net/kjvonly-bql/lex"
 )
 
 // This example shows how one could use File.GetLineBytes to display nicely

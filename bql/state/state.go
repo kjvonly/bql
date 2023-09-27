@@ -1,10 +1,7 @@
-package state_test
+package state
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
-	"testing"
 	"unicode"
 
 	"launchpad.net/kjvonly-bql/lex"
@@ -13,43 +10,57 @@ import (
 
 // Token types.
 const (
-	goEOF        lex.Token = iota // 0 EOF
-	goSemiColon                   // 1 semi-colon, EOL
-	goInt                         // 2 integer literal
-	goFloat                       // 3 float literal
-	goString                      // 4 quoted string
-	goChar                        // 5 quoted char
-	goIdentifier                  // 6 identifier
-	goDot                         // 7 '.' field/method selector
-	goRawChar                     // 8 any other single character
+	BqlEOF        lex.Token = iota // 0 EOF
+	BqlSemiColon                   // 1 semi-colon, EOL
+	BqlInt                         // 2 integer literal
+	BqlFloat                       // 3 float literal
+	BqlString                      // 4 quoted string
+	BqlChar                        // 5 quoted char
+	BqlIdentifier                  // 6 identifier
+	BqlDot                         // 7 '.' field/method selector
+	BqlRawChar                     // 8 any other single character
+	BqlLPAR                        // 9 (
+	BqlRPAR                        // 10 )
+	BqlComma                       // 11 ,
+
+	BqlEQ // 12 =
+
+	BqlANDKeyword // 13 and
+	BqlORKeyword  // 14 or
 )
 
-var tokNames = map[lex.Token]string{
-	lex.Error:    "error:   ",
-	goEOF:        "EOF      ",
-	goSemiColon:  "semicolon",
-	goInt:        "integer  ",
-	goFloat:      "float    ",
-	goString:     "string   ",
-	goChar:       "char     ",
-	goIdentifier: "ident    ",
-	goDot:        "dot      ",
-	goRawChar:    "raw char ",
+var TokenTypes = map[lex.Token]ElementType{
+	lex.Error:     "error",
+	BqlEOF:        "EOF",
+	BqlSemiColon:  "semicolon",
+	BqlInt:        "integer",
+	BqlFloat:      "float",
+	BqlString:     "STRING_LITERAL",
+	BqlChar:       "char",
+	BqlIdentifier: "IDENTIFIER",
+	BqlDot:        "dot",
+	BqlRawChar:    "raw char",
+	BqlLPAR:       "LPAR",
+	BqlRPAR:       "RPAR",
+	BqlComma:      "COMMA",
+	BqlEQ:         "EQ",
+	BqlANDKeyword: "AND_KEYWORD",
+	BqlORKeyword:  "OR_KEYWORD",
 }
 
-// tgInit returns the initial state function for our language.
+// bqlInit returns the initial state function for our language.
 // We implement it as a closure so that we can initialize state functions from
 // the state package and take advantage of buffer pre-allocation.
-func tgInit() lex.StateFn {
+func bqlInit() lex.StateFn {
 	// Note that because of the buffer pre-allocation mentioned above, reusing
 	// any of these variables in multiple goroutines is not safe. i.e. do not
 	// turn these into global variables.
 	// Instead, call tgInit() to get a new initial state function for each lexer
 	// running in a goroutine.
-	quotedString := state.QuotedString(goString)
-	quotedChar := state.QuotedChar(goChar)
+	quotedString := state.QuotedString(BqlString)
+	quotedChar := state.QuotedChar(BqlChar)
 	ident := identifier()
-	number := state.Number(goInt, goFloat, '.')
+	number := state.Number(BqlInt, BqlFloat, '.')
 
 	return func(s *lex.State) lex.StateFn {
 		// get current rune (read for us by the lexer upon entering the initial state)
@@ -59,11 +70,11 @@ func tgInit() lex.StateFn {
 		switch r {
 		case lex.EOF:
 			// End of file
-			s.Emit(pos, goEOF, nil)
+			s.Emit(pos, BqlEOF, nil)
 			return nil
 		case '\n', ';':
 			// transform EOLs to semi-colons
-			s.Emit(pos, goSemiColon, ';')
+			s.Emit(pos, BqlSemiColon, ';')
 			return nil
 		case '"':
 			return quotedString
@@ -79,7 +90,23 @@ func tgInit() lex.StateFn {
 				return number
 			}
 			// for a dot followed by any other interesting char, we emit it as-is
-			s.Emit(pos, goDot, nil)
+			s.Emit(pos, BqlDot, nil)
+			return nil
+
+		// BQL
+		case '(':
+			s.Emit(pos, BqlLPAR, r)
+			return nil
+		case ')':
+			s.Emit(pos, BqlRPAR, r)
+			return nil
+
+		case '=':
+			s.Emit(pos, BqlEQ, "=")
+			return nil
+
+		case ',':
+			s.Emit(pos, BqlComma, r)
 			return nil
 		}
 
@@ -95,7 +122,7 @@ func tgInit() lex.StateFn {
 			// r starts an identifier
 			return ident
 		default:
-			s.Emit(pos, goRawChar, r)
+			s.Emit(pos, BqlRawChar, r)
 			return nil
 		}
 	}
@@ -113,50 +140,27 @@ func identifier() lex.StateFn {
 		for r := l.Next(); unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_'; r = l.Next() {
 			b = append(b, r)
 		}
+
 		// the character returned by the last call to next is not part of the identifier. Undo it.
 		l.Backup()
-		l.Emit(pos, goIdentifier, string(b))
+
+		if strings.ToLower(string(b)) == "and" {
+			l.Emit(pos, BqlANDKeyword, string(b))
+			return nil
+		}
+
+		if strings.ToLower(string(b)) == "or" {
+			l.Emit(pos, BqlORKeyword, string(b))
+			return nil
+		}
+
+		l.Emit(pos, BqlIdentifier, string(b))
 		return nil
 	}
 }
 
-// TinyGo: a lexer for a minimal Go-like language.
-func Test_EXAMPLE_GO(t *testing.T) {
-	input := `book=(john, matthew) text=love OR text=world`
-
-	// initialize lex.
-	//
+// BQL: a lexer for a Bible Query Language language.
+func BQLLexer(input string) *lex.Lexer {
 	inputFile := lex.NewFile("example", strings.NewReader(input))
-	l := lex.NewLexer(inputFile, tgInit())
-
-	// loop over each token
-	for tt, _, v := l.Lex(); tt != goEOF; tt, _, v = l.Lex() {
-		// print the token type and value.
-		switch v := v.(type) {
-		case nil:
-			fmt.Println(tokNames[tt])
-		case string:
-			fmt.Println(tokNames[tt], strconv.Quote(v))
-		case rune:
-			fmt.Println(tokNames[tt], strconv.QuoteRune(v))
-		default:
-			fmt.Println(tokNames[tt], v)
-		}
-	}
-	// t.Fail()
-	// Output:
-	// ident     "book"
-	// raw char  '='
-	// raw char  '('
-	// ident     "john"
-	// raw char  ','
-	// ident     "matthew"
-	// raw char  ')'
-	// ident     "text"
-	// raw char  '='
-	// ident     "love"
-	// ident     "OR"
-	// ident     "text"
-	// raw char  '='
-	// ident     "world"
+	return lex.NewLexer(inputFile, bqlInit())
 }

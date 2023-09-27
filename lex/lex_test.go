@@ -9,7 +9,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"git.launchpad.net/kjvonly-bql/lex"
+	"launchpad.net/kjvonly-bql/lex"
 )
 
 type testData struct {
